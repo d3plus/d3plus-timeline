@@ -1,0 +1,41 @@
+{
+  "name": "d3plus-timeline",
+  "version": "0.1.0",
+  "description": "An easy-to-use javascript timeline.",
+  "main": "build/d3plus-timeline.js",
+  "jsnext:main": "index",
+  "license": "MIT",
+  "homepage": "https://d3plus.org",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/d3plus/d3plus-timeline.git"
+  },
+  "keywords": [
+    "timeline",
+    "d3",
+    "d3plus",
+    "data",
+    "visualization"
+  ],
+  "author": {
+    "name": "Dave Landry",
+    "email": "landry.dave@gmail.com",
+    "url": "http://www.dave-landry.com"
+  },
+  "dependencies": {
+    "d3-array": "^1.0.1",
+    "d3-scale": "^1.0.3",
+    "d3-selection": "^1.0.2",
+    "d3-transition": "^1.0.1",
+    "d3plus-common": "^0.5.7",
+    "d3plus-text": "^0.9.2"
+  },
+  "scripts": {
+    "dev": "d3plus-dev",
+    "docs": "d3plus-docs",
+    "env": "d3plus-env",
+    "examples": "d3plus-examples",
+    "release": "d3plus-release",
+    "test": "d3plus-test"
+  }
+}
