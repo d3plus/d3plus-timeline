@@ -29,7 +29,7 @@ export default class Timeline extends Axis {
         if (this._on.end) this._on.end(d.id);
         this.selection(d.id).render();
       }},
-      width: d => this._domain.map(t => this._parseDate(t).getTime()).includes(d.id.getTime()) ? 2 : 1
+      width: d => this._domain.map(t => this._parseDate(t).getTime()).includes(d.id) ? 2 : 1
     });
     this._tickShape = "circle";
   }
