@@ -2,7 +2,7 @@ import {brushX} from "d3-brush";
 import {event} from "d3-selection";
 
 import {Axis} from "d3plus-axis";
-import {attrize, elem} from "d3plus-common";
+import {attrize, closest, elem} from "d3plus-common";
 
 /**
     @class Timeline
@@ -44,8 +44,8 @@ export default class Timeline extends Axis {
                  .map(Number);
 
     const ticks = this._visibleTicks.map(Number);
-    domain[0] = this._parseDate(this._findClosest(domain[0], ticks));
-    domain[1] = this._parseDate(this._findClosest(domain[1], ticks));
+    domain[0] = this._parseDate(closest(domain[0], ticks));
+    domain[1] = this._parseDate(closest(domain[1], ticks));
     const pixelDomain = domain.map(this._d3Scale),
           single = pixelDomain[0] === pixelDomain[1];
     if (single) {
@@ -57,10 +57,6 @@ export default class Timeline extends Axis {
 
     if (this._on.end) this._on.end(single ? domain[0] : domain);
 
-  }
-
-  _findClosest(num, arr) {
-    return arr.reduce((prev, curr) => Math.abs(curr - num) < Math.abs(prev - num) ? curr : prev);
   }
 
   /**
