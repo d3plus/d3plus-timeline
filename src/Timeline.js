@@ -10,12 +10,19 @@ import {attrize, closest, elem} from "d3plus-common";
 */
 export default class Timeline extends Axis {
 
+  /**
+      @memberof Timeline
+      @desc Invoked when creating a new class instance, and overrides any default parameters inherited from Axis.
+      @private
+  */
   constructor() {
+
     super();
+
     this._domain = [2000, 2010];
     this._gridSize = 0;
     this._handleConfig = {
-      fill: "red"
+      fill: "#444"
     };
     this._handleSize = 6;
     this._height = 100;
@@ -31,9 +38,14 @@ export default class Timeline extends Axis {
       }},
       width: d => this._domain.map(t => date(t).getTime()).includes(d.id) ? 2 : 1
     });
-    this._tickShape = "circle";
+
   }
 
+  /**
+      @memberof Timeline
+      @desc Triggered when mouse events changing the timeline have ended.
+      @private
+  */
   _brushEnd() {
 
     if (!event.sourceEvent) return; // Only transition after input.
