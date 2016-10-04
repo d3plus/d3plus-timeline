@@ -1,7 +1,7 @@
 import {brushX} from "d3-brush";
 import {event} from "d3-selection";
 
-import {Axis} from "d3plus-axis";
+import {Axis, date} from "d3plus-axis";
 import {attrize, closest, elem} from "d3plus-common";
 
 /**
@@ -29,7 +29,7 @@ export default class Timeline extends Axis {
         if (this._on.end) this._on.end(d.id);
         this.selection(d.id).render();
       }},
-      width: d => this._domain.map(t => this._parseDate(t).getTime()).includes(d.id) ? 2 : 1
+      width: d => this._domain.map(t => date(t).getTime()).includes(d.id) ? 2 : 1
     });
     this._tickShape = "circle";
   }
@@ -44,8 +44,8 @@ export default class Timeline extends Axis {
                  .map(Number);
 
     const ticks = this._visibleTicks.map(Number);
-    domain[0] = this._parseDate(closest(domain[0], ticks));
-    domain[1] = this._parseDate(closest(domain[1], ticks));
+    domain[0] = date(closest(domain[0], ticks));
+    domain[1] = date(closest(domain[1], ticks));
     const pixelDomain = domain.map(this._d3Scale),
           single = pixelDomain[0] === pixelDomain[1];
     if (single) {
@@ -89,7 +89,7 @@ export default class Timeline extends Axis {
                     : this._selection instanceof Array
                     ? this._selection.slice()
                     : [this._selection, this._selection])
-                    .map(this._parseDate)
+                    .map(date)
                     .map(this._d3Scale);
 
     if (selection[0] === selection[1]) {
