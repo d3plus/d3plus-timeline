@@ -19,7 +19,7 @@ export default class Timeline extends Axis {
 
     super();
 
-    this._domain = [2000, 2010];
+    this._domain = [2001, 2010];
     this._gridSize = 0;
     this._handleConfig = {
       fill: "#444"
