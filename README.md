@@ -15,6 +15,28 @@ If you use NPM, `npm install d3plus-timeline`. Otherwise, download the [latest r
 <script src="https://d3plus.org/js/d3plus-timeline.v0.1.full.min.js"></script>
 ```
 
+[width]: 400
+[height]: 100
+
+## Getting Started
+
+A d3plus timeline extends the functionality of a [d3plus-axis](https://github.com/d3plus/d3plus-axis) by also allowing user to select a given time period using a one-dimensional [d3-brush](https://github.com/d3/d3-brush). Here is all you need to do in order to create a d3plus timeline:
+
+```js
+new d3plus.Timeline()
+  .domain([2001, 2010])
+  .render();
+```
+
+
+[<kbd><img src="/example/getting-started.png" width="400px" /></kbd>](https://d3plus.org/examples/d3plus-timeline/getting-started/)
+
+[Click here](https://d3plus.org/examples/d3plus-timeline/getting-started/) to view this example live on the web.
+
+
+### More Examples
+
+ * [Changing Styles](http://d3plus.org/examples/d3plus-timeline/change-style/)<sup> ***New***</sup>
 
 ## API Reference
 <a name="Timeline"></a>
@@ -88,4 +110,4 @@ If *value* is specified, sets the selection and returns the current class instan
 
 
 
-###### <sub>Documentation generated on Tue, 04 Oct 2016 20:07:30 GMT</sub>
+###### <sub>Documentation generated on Tue, 11 Oct 2016 19:59:40 GMT</sub>
