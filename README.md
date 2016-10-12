@@ -12,7 +12,7 @@ An easy-to-use javascript timeline.
 If you use NPM, `npm install d3plus-timeline`. Otherwise, download the [latest release](https://github.com/d3plus/d3plus-timeline/releases/latest). The released bundle supports AMD, CommonJS, and vanilla environments. Create a [custom bundle using Rollup](https://github.com/rollup/rollup) or your preferred bundler. You can also load directly from [d3plus.org](https://d3plus.org):
 
 ```html
-<script src="https://d3plus.org/js/d3plus-timeline.v0.1.full.min.js"></script>
+<script src="https://d3plus.org/js/d3plus-timeline.v0.2.full.min.js"></script>
 ```
 
 [width]: 400
@@ -110,4 +110,4 @@ If *value* is specified, sets the selection and returns the current class instan
 
 
 
-###### <sub>Documentation generated on Tue, 11 Oct 2016 19:59:40 GMT</sub>
+###### <sub>Documentation generated on Wed, 12 Oct 2016 20:18:34 GMT</sub>
