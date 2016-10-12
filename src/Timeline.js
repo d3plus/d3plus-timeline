@@ -66,7 +66,7 @@ export default class Timeline extends Axis {
                  .map(this._d3Scale.invert)
                  .map(Number);
 
-    const ticks = this._visibleTicks.map(Number);
+    const ticks = this._availableTicks.map(Number);
     domain[0] = date(closest(domain[0], ticks));
     domain[1] = date(closest(domain[1], ticks));
     const pixelDomain = domain.map(this._d3Scale),
@@ -139,7 +139,7 @@ export default class Timeline extends Axis {
       .on("brush", this._brushBrush.bind(this))
       .on("end", this._brushEnd.bind(this));
 
-    const latest = this._visibleTicks[this._visibleTicks.length - 1];
+    const latest = this._availableTicks[this._availableTicks.length - 1];
     const selection = (this._selection === void 0 ? [latest, latest]
                     : this._selection instanceof Array
                     ? this._selection.slice()
