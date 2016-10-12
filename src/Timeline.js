@@ -29,6 +29,9 @@ export default class Timeline extends Axis {
     this._on = {};
     this.orient("bottom");
     this._scale = "time";
+    this._selectionConfig = {
+      fill: "#777"
+    };
     this._shape = "Rect";
     this._shapeConfig = Object.assign({}, this._shapeConfig, {
       height: 10,
@@ -106,6 +109,7 @@ export default class Timeline extends Axis {
              : this._tickSize;
 
     this._brushGroup.selectAll(".selection")
+      .call(attrize, this._selectionConfig)
       .attr("height", timelineHeight);
 
     this._brushGroup.selectAll(".handle")
