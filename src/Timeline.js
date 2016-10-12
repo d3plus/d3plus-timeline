@@ -32,10 +32,6 @@ export default class Timeline extends Axis {
     this._shape = "Rect";
     this._shapeConfig = Object.assign({}, this._shapeConfig, {
       height: 10,
-      on: {click: d => {
-        if (this._on.end) this._on.end(d.id);
-        this.selection(d.id).render();
-      }},
       width: d => this._domain.map(t => date(t).getTime()).includes(d.id) ? 2 : 1
     });
 
@@ -43,7 +39,19 @@ export default class Timeline extends Axis {
 
   /**
       @memberof Timeline
-      @desc Triggered when mouse events changing the timeline have ended.
+      @desc Triggered on brush "brush".
+      @private
+  */
+  _brushBrush() {
+
+    this._brushStyle();
+    if (this._on.brush) this._on.brush();
+
+  }
+
+  /**
+      @memberof Timeline
+      @desc Triggered on brush "end".
       @private
   */
   _brushEnd() {
@@ -67,7 +75,42 @@ export default class Timeline extends Axis {
 
     this._brushGroup.transition(this._transition).call(this._brush.move, pixelDomain);
 
+    this._brushStyle();
+
     if (this._on.end) this._on.end(single ? domain[0] : domain);
+
+  }
+
+  /**
+      @memberof Timeline
+      @desc Triggered on brush "start".
+      @private
+  */
+  _brushStart() {
+
+    this._brushStyle();
+    if (this._on.start) this._on.start();
+
+  }
+
+  /**
+      @memberof Timeline
+      @desc Overrides the default brush styles.
+      @private
+  */
+  _brushStyle() {
+
+    const {height} = this._position;
+    const timelineHeight = this._shape === "Circle" ? this._shapeConfig.r * 2
+             : this._shape === "Rect" ? this._shapeConfig[height]
+             : this._tickSize;
+
+    this._brushGroup.selectAll(".selection")
+      .attr("height", timelineHeight);
+
+    this._brushGroup.selectAll(".handle")
+      .call(attrize, this._handleConfig)
+      .attr("height", timelineHeight + this._handleSize);
 
   }
 
@@ -82,18 +125,14 @@ export default class Timeline extends Axis {
 
     const {height, y} = this._position;
 
-    const timelineHeight = this._shape === "Circle" ? this._shapeConfig.r * 2
-             : this._shape === "Rect" ? this._shapeConfig[height]
-             : this._tickSize;
-
     const offset = this._outerBounds[y],
           range = this._d3Scale.range();
 
     const brush = this._brush = brushX()
-      .extent([[range[0], offset], [range[1], offset + timelineHeight]])
+      .extent([[range[0], offset], [range[1], offset + this._outerBounds[height]]])
       .handleSize(this._handleSize)
-      .on("start", this._on.start || null)
-      .on("brush", this._on.brush || null)
+      .on("start", this._brushStart.bind(this))
+      .on("brush", this._brushBrush.bind(this))
       .on("end", this._brushEnd.bind(this));
 
     const latest = this._visibleTicks[this._visibleTicks.length - 1];
@@ -109,11 +148,9 @@ export default class Timeline extends Axis {
       selection[1]++;
     }
 
-    const brushGroup = this._brushGroup = elem("g.brushGroup", {parent: this._group});
-    brushGroup.call(brush).transition(this._transition)
+    this._brushGroup = elem("g.brushGroup", {parent: this._group});
+    this._brushGroup.call(brush).transition(this._transition)
       .call(brush.move, selection);
-    brushGroup.selectAll(".handle").transition(this._transition)
-      .call(attrize, this._handleConfig);
 
     return this;
 
