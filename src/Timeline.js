@@ -69,8 +69,8 @@ export default class Timeline extends Axis {
     const pixelDomain = domain.map(this._d3Scale),
           single = pixelDomain[0] === pixelDomain[1];
     if (single) {
-      pixelDomain[0]--;
-      pixelDomain[1]++;
+      pixelDomain[0] -= 0.1;
+      pixelDomain[1] += 0.1;
     }
 
     this._brushGroup.transition(this._transition).call(this._brush.move, pixelDomain);
@@ -144,8 +144,8 @@ export default class Timeline extends Axis {
                     .map(this._d3Scale);
 
     if (selection[0] === selection[1]) {
-      selection[0]--;
-      selection[1]++;
+      selection[0] -= 0.1;
+      selection[1] += 0.1;
     }
 
     this._brushGroup = elem("g.brushGroup", {parent: this._group});
