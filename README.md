@@ -36,7 +36,7 @@ new d3plus.Timeline()
 
 ### More Examples
 
- * [Changing Styles](http://d3plus.org/examples/d3plus-timeline/change-style/)<sup> ***New***</sup>
+ * [Changing Styles](http://d3plus.org/examples/d3plus-timeline/change-style/)
 
 ## API Reference
 <a name="Timeline"></a>
@@ -110,4 +110,4 @@ If *value* is specified, sets the selection and returns the current class instan
 
 
 
-###### <sub>Documentation generated on Wed, 12 Oct 2016 20:18:34 GMT</sub>
+###### <sub>Documentation generated on Mon, 31 Oct 2016 20:50:44 GMT</sub>
