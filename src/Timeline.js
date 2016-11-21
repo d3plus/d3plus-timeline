@@ -19,6 +19,7 @@ export default class Timeline extends Axis {
 
     super();
 
+    this._brushFilter = () => !event.button && event.detail < 2;
     this._domain = [2001, 2010];
     this._gridSize = 0;
     this._handleConfig = {
@@ -135,6 +136,7 @@ export default class Timeline extends Axis {
 
     const brush = this._brush = brushX()
       .extent([[range[0], offset], [range[1], offset + this._outerBounds[height]]])
+      .filter(this._brushFilter)
       .handleSize(this._handleSize)
       .on("start", this._brushStart.bind(this))
       .on("brush", this._brushBrush.bind(this))
@@ -159,6 +161,19 @@ export default class Timeline extends Axis {
 
     return this;
 
+  }
+
+  /**
+      @memberof Timeline
+      @desc If *value* is specified, sets the brush event filter and returns the current class instance. If *value* is not specified, returns the current brush event filter.
+      @param {Function} [*value*]
+      @example
+function() {
+  return !event.button && event.detail < 2;
+}
+  */
+  brushFilter(_) {
+    return arguments.length ? (this._brushFilter = _, this) : this._brushFilter;
   }
 
   /**
