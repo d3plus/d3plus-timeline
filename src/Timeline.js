@@ -30,7 +30,8 @@ export default class Timeline extends Axis {
     this.orient("bottom");
     this._scale = "time";
     this._selectionConfig = {
-      fill: "#777"
+      "fill": "#777",
+      "stroke-width": 0
     };
     this._shape = "Rect";
     this._shapeConfig = Object.assign({}, this._shapeConfig, {
