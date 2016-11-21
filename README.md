@@ -46,12 +46,30 @@ new d3plus.Timeline()
 **Extends:** <code>Axis</code>  
 
 * [Timeline](#Timeline) ⇐ <code>Axis</code>
+    * [.brushFilter([*value*])](#Timeline.brushFilter)
     * [.handleConfig([*value*])](#Timeline.handleConfig)
     * [.handleSize([*value*])](#Timeline.handleSize)
     * [.on([*typename*], [*listener*])](#Timeline.on)
     * [.selectionConfig([*value*])](#Timeline.selectionConfig)
     * [.selection([*value*])](#Timeline.selection)
 
+<a name="Timeline.brushFilter"></a>
+
+#### Timeline.brushFilter([*value*])
+If *value* is specified, sets the brush event filter and returns the current class instance. If *value* is not specified, returns the current brush event filter.
+
+**Kind**: static method of <code>[Timeline](#Timeline)</code>  
+
+| Param | Type |
+| --- | --- |
+| [*value*] | <code>function</code> | 
+
+**Example**  
+```js
+function() {
+  return !event.button && event.detail < 2;
+}
+```
 <a name="Timeline.handleConfig"></a>
 
 #### Timeline.handleConfig([*value*])
@@ -110,4 +128,4 @@ If *value* is specified, sets the selection and returns the current class instan
 
 
 
-###### <sub>Documentation generated on Mon, 31 Oct 2016 20:50:44 GMT</sub>
+###### <sub>Documentation generated on Mon, 21 Nov 2016 19:12:42 GMT</sub>
