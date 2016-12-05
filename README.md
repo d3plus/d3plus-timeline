@@ -128,4 +128,4 @@ If *value* is specified, sets the selection and returns the current class instan
 
 
 
-###### <sub>Documentation generated on Mon, 21 Nov 2016 19:12:42 GMT</sub>
+###### <sub>Documentation generated on Mon, 05 Dec 2016 02:57:09 GMT</sub>
