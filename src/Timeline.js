@@ -19,6 +19,7 @@ export default class Timeline extends Axis {
 
     super();
 
+    this._brushing = true;
     this._brushFilter = () => !event.button && event.detail < 2;
     this._domain = [2001, 2010];
     this._gridSize = 0;
@@ -49,6 +50,17 @@ export default class Timeline extends Axis {
   */
   _brushBrush() {
 
+    const x = event.sourceEvent ? event.sourceEvent.offsetX : undefined;
+
+    if (x !== void 0 && !this._brushing && event.sourceEvent) {
+
+      const mouseTick = +this._d3Scale.invert(x);
+      const ticks = this._availableTicks.map(Number);
+      const realX = this._d3Scale(date(closest(mouseTick, ticks)));
+      this._brushGroup.call(this._brush.move, [realX - 0.1, realX + 0.1]);
+
+    }
+
     this._brushStyle();
     if (this._on.brush) this._on.brush();
 
@@ -78,7 +90,7 @@ export default class Timeline extends Axis {
       pixelDomain[1] += 0.1;
     }
 
-    this._brushGroup.transition(this._transition).call(this._brush.move, pixelDomain);
+    if (this._brushing) this._brushGroup.transition(this._transition).call(this._brush.move, pixelDomain);
 
     this._brushStyle();
 
@@ -92,6 +104,17 @@ export default class Timeline extends Axis {
       @private
   */
   _brushStart() {
+
+    const x = event.sourceEvent ? event.sourceEvent.offsetX : undefined;
+
+    if (x !== void 0 && !this._brushing && event.sourceEvent) {
+
+      const mouseTick = +this._d3Scale.invert(x);
+      const ticks = this._availableTicks.map(Number);
+      const realX = this._d3Scale(date(closest(mouseTick, ticks)));
+      this._brushGroup.call(this._brush.move, [realX - 0.1, realX + 0.1]);
+
+    }
 
     this._brushStyle();
     if (this._on.start) this._on.start();
@@ -109,6 +132,9 @@ export default class Timeline extends Axis {
     const timelineHeight = this._shape === "Circle" ? this._shapeConfig.r * 2
              : this._shape === "Rect" ? this._shapeConfig[height]
              : this._tickSize;
+
+    this._brushGroup.selectAll(".overlay")
+      .attr("cursor", this._brushing ? "crosshair" : "pointer");
 
     this._brushGroup.selectAll(".selection")
       .call(attrize, this._selectionConfig)
@@ -161,6 +187,16 @@ export default class Timeline extends Axis {
 
     return this;
 
+  }
+
+  /**
+      @memberof Timeline
+      @desc If *value* is specified, toggles the brushing value and returns the current class instance. If *value* is not specified, returns the current brushing value.
+      @param {Boolean} [*value* = true]
+      @example
+  */
+  brushing(_) {
+    return arguments.length ? (this._brushing = _, this) : this._brushing;
   }
 
   /**
