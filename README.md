@@ -12,7 +12,7 @@ An easy-to-use javascript timeline.
 If you use NPM, `npm install d3plus-timeline`. Otherwise, download the [latest release](https://github.com/d3plus/d3plus-timeline/releases/latest). The released bundle supports AMD, CommonJS, and vanilla environments. Create a [custom bundle using Rollup](https://github.com/rollup/rollup) or your preferred bundler. You can also load directly from [d3plus.org](https://d3plus.org):
 
 ```html
-<script src="https://d3plus.org/js/d3plus-timeline.v0.2.full.min.js"></script>
+<script src="https://d3plus.org/js/d3plus-timeline.v0.3.full.min.js"></script>
 ```
 
 [width]: 400
@@ -41,24 +41,52 @@ new d3plus.Timeline()
 ## API Reference
 <a name="Timeline"></a>
 
-### Timeline ⇐ <code>Axis</code>
+### Timeline ⇐ <code>[Axis](https://github.com/d3plus/d3plus-axis#Axis)</code>
 **Kind**: global class  
-**Extends:** <code>Axis</code>  
+**Extends:** <code>[Axis](https://github.com/d3plus/d3plus-axis#Axis)</code>  
 
-* [Timeline](#Timeline) ⇐ <code>Axis</code>
-    * [.brushFilter([*value*])](#Timeline.brushFilter)
-    * [.handleConfig([*value*])](#Timeline.handleConfig)
-    * [.handleSize([*value*])](#Timeline.handleSize)
-    * [.on([*typename*], [*listener*])](#Timeline.on)
-    * [.selectionConfig([*value*])](#Timeline.selectionConfig)
-    * [.selection([*value*])](#Timeline.selection)
+* [Timeline](#Timeline) ⇐ <code>[Axis](https://github.com/d3plus/d3plus-axis#Axis)</code>
+    * [.render([*callback*])](#Timeline.render) ↩︎
+    * [.brushing([*value*])](#Timeline.brushing) ↩︎
+    * [.brushFilter([*value*])](#Timeline.brushFilter) ↩︎
+    * [.handleConfig([*value*])](#Timeline.handleConfig) ↩︎
+    * [.handleSize([*value*])](#Timeline.handleSize) ↩︎
+    * [.on([*typename*], [*listener*])](#Timeline.on) ↩︎
+    * [.selectionConfig([*value*])](#Timeline.selectionConfig) ↩︎
+    * [.selection([*value*])](#Timeline.selection) ↩︎
+    * [.snapping([*value*])](#Timeline.snapping) ↩︎
+
+<a name="Timeline.render"></a>
+
+#### Timeline.render([*callback*]) ↩︎
+Draws the timeline.
+
+**Kind**: static method of <code>[Timeline](#Timeline)</code>  
+**Chainable**  
+
+| Param | Type |
+| --- | --- |
+| [*callback*] | <code>function</code> | 
+
+<a name="Timeline.brushing"></a>
+
+#### Timeline.brushing([*value*]) ↩︎
+If *value* is specified, toggles the brushing value and returns the current class instance. If *value* is not specified, returns the current brushing value.
+
+**Kind**: static method of <code>[Timeline](#Timeline)</code>  
+**Chainable**  
+
+| Param | Type | Default |
+| --- | --- | --- |
+| [*value*] | <code>Boolean</code> | <code>true</code> | 
 
 <a name="Timeline.brushFilter"></a>
 
-#### Timeline.brushFilter([*value*])
+#### Timeline.brushFilter([*value*]) ↩︎
 If *value* is specified, sets the brush event filter and returns the current class instance. If *value* is not specified, returns the current brush event filter.
 
 **Kind**: static method of <code>[Timeline](#Timeline)</code>  
+**Chainable**  
 
 | Param | Type |
 | --- | --- |
@@ -72,10 +100,11 @@ function() {
 ```
 <a name="Timeline.handleConfig"></a>
 
-#### Timeline.handleConfig([*value*])
+#### Timeline.handleConfig([*value*]) ↩︎
 If *value* is specified, sets the handle style and returns the current class instance. If *value* is not specified, returns the current handle style.
 
 **Kind**: static method of <code>[Timeline](#Timeline)</code>  
+**Chainable**  
 
 | Param | Type |
 | --- | --- |
@@ -83,10 +112,11 @@ If *value* is specified, sets the handle style and returns the current class ins
 
 <a name="Timeline.handleSize"></a>
 
-#### Timeline.handleSize([*value*])
+#### Timeline.handleSize([*value*]) ↩︎
 If *value* is specified, sets the handle size and returns the current class instance. If *value* is not specified, returns the current handle size.
 
 **Kind**: static method of <code>[Timeline](#Timeline)</code>  
+**Chainable**  
 
 | Param | Type | Default |
 | --- | --- | --- |
@@ -94,10 +124,11 @@ If *value* is specified, sets the handle size and returns the current class inst
 
 <a name="Timeline.on"></a>
 
-#### Timeline.on([*typename*], [*listener*])
+#### Timeline.on([*typename*], [*listener*]) ↩︎
 Adds or removes a *listener* for the specified brush event *typename*. If a *listener* is not specified, returns the currently-assigned listener for the specified event *typename*. Mirrors the core [d3-brush](https://github.com/d3/d3-brush#brush_on) behavior.
 
 **Kind**: static method of <code>[Timeline](#Timeline)</code>  
+**Chainable**  
 
 | Param | Type |
 | --- | --- |
@@ -106,10 +137,11 @@ Adds or removes a *listener* for the specified brush event *typename*. If a *lis
 
 <a name="Timeline.selectionConfig"></a>
 
-#### Timeline.selectionConfig([*value*])
+#### Timeline.selectionConfig([*value*]) ↩︎
 If *value* is specified, sets the selection style and returns the current class instance. If *value* is not specified, returns the current selection style.
 
 **Kind**: static method of <code>[Timeline](#Timeline)</code>  
+**Chainable**  
 
 | Param | Type |
 | --- | --- |
@@ -117,15 +149,28 @@ If *value* is specified, sets the selection style and returns the current class 
 
 <a name="Timeline.selection"></a>
 
-#### Timeline.selection([*value*])
+#### Timeline.selection([*value*]) ↩︎
 If *value* is specified, sets the selection and returns the current class instance. If *value* is not specified, returns the current selection. Defaults to the most recent year in the timeline.
 
 **Kind**: static method of <code>[Timeline](#Timeline)</code>  
+**Chainable**  
 
 | Param | Type |
 | --- | --- |
 | [*value*] | <code>Array</code> &#124; <code>Date</code> &#124; <code>Number</code> &#124; <code>String</code> | 
 
+<a name="Timeline.snapping"></a>
+
+#### Timeline.snapping([*value*]) ↩︎
+If *value* is specified, toggles the snapping value and returns the current class instance. If *value* is not specified, returns the current snapping value.
+
+**Kind**: static method of <code>[Timeline](#Timeline)</code>  
+**Chainable**  
+
+| Param | Type | Default |
+| --- | --- | --- |
+| [*value*] | <code>Boolean</code> | <code>true</code> | 
 
 
-###### <sub>Documentation generated on Mon, 05 Dec 2016 02:57:09 GMT</sub>
+
+###### <sub>Documentation generated on Fri, 09 Dec 2016 18:21:23 GMT</sub>
