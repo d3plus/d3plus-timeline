@@ -190,9 +190,10 @@ export default class Timeline extends Axis {
   }
 
   /**
-      Draws the timeline.
+      @memberof Timeline
+      @desc Draws the timeline.
       @param {Function} [*callback* = undefined]
-      @private
+      @chainable
   */
   render(callback) {
 
@@ -236,6 +237,7 @@ export default class Timeline extends Axis {
       @memberof Timeline
       @desc If *value* is specified, toggles the brushing value and returns the current class instance. If *value* is not specified, returns the current brushing value.
       @param {Boolean} [*value* = true]
+      @chainable
       @example
   */
   brushing(_) {
@@ -246,6 +248,7 @@ export default class Timeline extends Axis {
       @memberof Timeline
       @desc If *value* is specified, sets the brush event filter and returns the current class instance. If *value* is not specified, returns the current brush event filter.
       @param {Function} [*value*]
+      @chainable
       @example
 function() {
   return !event.button && event.detail < 2;
@@ -259,6 +262,7 @@ function() {
       @memberof Timeline
       @desc If *value* is specified, sets the handle style and returns the current class instance. If *value* is not specified, returns the current handle style.
       @param {Object} [*value*]
+      @chainable
   */
   handleConfig(_) {
     return arguments.length ? (this._handleConfig = Object.assign(this._handleConfig, _), this) : this._handleConfig;
@@ -268,6 +272,7 @@ function() {
       @memberof Timeline
       @desc If *value* is specified, sets the handle size and returns the current class instance. If *value* is not specified, returns the current handle size.
       @param {Number} [*value* = 6]
+      @chainable
   */
   handleSize(_) {
     return arguments.length ? (this._handleSize = _, this) : this._handleSize;
@@ -278,6 +283,7 @@ function() {
       @desc Adds or removes a *listener* for the specified brush event *typename*. If a *listener* is not specified, returns the currently-assigned listener for the specified event *typename*. Mirrors the core [d3-brush](https://github.com/d3/d3-brush#brush_on) behavior.
       @param {String|Object} [*typename*]
       @param {Function} [*listener*]
+      @chainable
   */
   on(_, f) {
     return arguments.length === 2 ? (this._on[_] = f, this) : arguments.length ? typeof _ === "string" ? this._on[_] : (this._on = Object.assign({}, this._on, _), this) : this._on;
@@ -287,6 +293,7 @@ function() {
       @memberof Timeline
       @desc If *value* is specified, sets the selection style and returns the current class instance. If *value* is not specified, returns the current selection style.
       @param {Object} [*value*]
+      @chainable
   */
   selectionConfig(_) {
     return arguments.length ? (this._selectionConfig = Object.assign(this._selectionConfig, _), this) : this._selectionConfig;
@@ -296,6 +303,7 @@ function() {
       @memberof Timeline
       @desc If *value* is specified, sets the selection and returns the current class instance. If *value* is not specified, returns the current selection. Defaults to the most recent year in the timeline.
       @param {Array|Date|Number|String} [*value*]
+      @chainable
   */
   selection(_) {
     return arguments.length ? (this._selection = _, this) : this._selection;
@@ -305,6 +313,7 @@ function() {
       @memberof Timeline
       @desc If *value* is specified, toggles the snapping value and returns the current class instance. If *value* is not specified, returns the current snapping value.
       @param {Boolean} [*value* = true]
+      @chainable
       @example
   */
   snapping(_) {
