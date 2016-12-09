@@ -40,6 +40,7 @@ export default class Timeline extends Axis {
       height: 10,
       width: d => this._domain.map(t => date(t).getTime()).includes(d.id) ? 2 : 1
     });
+    this._snapping = true;
 
   }
 
@@ -50,17 +51,33 @@ export default class Timeline extends Axis {
   */
   _brushBrush() {
 
-    const x = event.sourceEvent ? event.sourceEvent.offsetX : undefined;
+    if (event.sourceEvent && event.sourceEvent.offsetX && event.selection !== null && (!this._brushing || this._snapping)) {
 
-    if (x !== void 0 && !this._brushing && event.sourceEvent) {
+      const domain = (this._brushing ? event.selection
+                   : [event.selection[0], event.selection[0]])
+                   .map(this._d3Scale.invert)
+                   .map(Number);
 
-      const mouseTick = this._d3Scale.invert(x);
       const ticks = this._availableTicks.map(Number);
-      const closestDate = date(closest(+mouseTick, ticks));
-      const realX = this._d3Scale(closestDate);
-      this._brushGroup.call(this._brush.move, [realX - 0.1, realX + 0.1]);
-      if (JSON.stringify(closestDate) !== JSON.stringify(this._selection) && this._on.end) this._on.end(closestDate);
-      this._selection = closestDate;
+      domain[0] = date(closest(domain[0], ticks));
+      domain[1] = date(closest(domain[1], ticks));
+
+      const single = +domain[0] === +domain[1],
+            value = single ? domain[0] : domain;
+
+      if (this._selection && JSON.stringify(value) !== JSON.stringify(this._selection)) {
+        this._selection = value;
+        if (this._on.end) this._on.end(value);
+      }
+
+      const pixelDomain = domain.map(this._d3Scale);
+
+      if (single) {
+        pixelDomain[0] -= 0.1;
+        pixelDomain[1] += 0.1;
+      }
+
+      this._brushGroup.call(this._brush.move, pixelDomain);
 
     }
 
@@ -78,7 +95,7 @@ export default class Timeline extends Axis {
 
     if (!event.sourceEvent) return; // Only transition after input.
 
-    const domain = (event.selection ? event.selection
+    const domain = (event.selection && this._brushing ? event.selection
                  : [event.sourceEvent.offsetX, event.sourceEvent.offsetX])
                  .map(this._d3Scale.invert)
                  .map(Number);
@@ -89,7 +106,7 @@ export default class Timeline extends Axis {
 
     const single = +domain[0] === +domain[1];
 
-    if (this._brushing) {
+    if (this._brushing || !this._snapping) {
 
       const pixelDomain = domain.map(this._d3Scale);
 
@@ -104,8 +121,10 @@ export default class Timeline extends Axis {
 
     this._brushStyle();
     const value = single ? domain[0] : domain;
-    if (JSON.stringify(value) !== JSON.stringify(this._selection) && this._on.end) this._on.end(value);
-    this._selection = value;
+    if (JSON.stringify(value) !== JSON.stringify(this._selection)) {
+      if (this._on.end) this._on.end(value);
+      this._selection = value;
+    }
 
   }
 
@@ -116,14 +135,27 @@ export default class Timeline extends Axis {
   */
   _brushStart() {
 
-    const x = event.sourceEvent ? event.sourceEvent.offsetX : undefined;
+    if (event.sourceEvent !== null && (!this._brushing || this._snapping)) {
 
-    if (x !== void 0 && !this._brushing && event.sourceEvent) {
+      const domain = (event.selection && this._brushing ? event.selection
+                   : [event.sourceEvent.offsetX, event.sourceEvent.offsetX])
+                   .map(this._d3Scale.invert)
+                   .map(Number);
 
-      const mouseTick = +this._d3Scale.invert(x);
       const ticks = this._availableTicks.map(Number);
-      const realX = this._d3Scale(date(closest(mouseTick, ticks)));
-      this._brushGroup.call(this._brush.move, [realX - 0.1, realX + 0.1]);
+      domain[0] = date(closest(domain[0], ticks));
+      domain[1] = date(closest(domain[1], ticks));
+
+      const single = +domain[0] === +domain[1];
+
+      const pixelDomain = domain.map(this._d3Scale);
+
+      if (single) {
+        pixelDomain[0] -= 0.1;
+        pixelDomain[1] += 0.1;
+      }
+
+      this._brushGroup.call(this._brush.move, pixelDomain);
 
     }
 
@@ -267,6 +299,16 @@ function() {
   */
   selection(_) {
     return arguments.length ? (this._selection = _, this) : this._selection;
+  }
+
+  /**
+      @memberof Timeline
+      @desc If *value* is specified, toggles the snapping value and returns the current class instance. If *value* is not specified, returns the current snapping value.
+      @param {Boolean} [*value* = true]
+      @example
+  */
+  snapping(_) {
+    return arguments.length ? (this._snapping = _, this) : this._snapping;
   }
 
 }
