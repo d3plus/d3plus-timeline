@@ -1,3 +1,8 @@
+/**
+    @external Axis
+    @see https://github.com/d3plus/d3plus-axis#Axis
+*/
+
 import {brushX} from "d3-brush";
 import {event} from "d3-selection";
 
@@ -6,7 +11,7 @@ import {attrize, closest, elem} from "d3plus-common";
 
 /**
     @class Timeline
-    @extends Axis
+    @extends external:Axis
 */
 export default class Timeline extends Axis {
 
