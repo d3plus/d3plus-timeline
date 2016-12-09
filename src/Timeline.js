@@ -54,10 +54,13 @@ export default class Timeline extends Axis {
 
     if (x !== void 0 && !this._brushing && event.sourceEvent) {
 
-      const mouseTick = +this._d3Scale.invert(x);
+      const mouseTick = this._d3Scale.invert(x);
       const ticks = this._availableTicks.map(Number);
-      const realX = this._d3Scale(date(closest(mouseTick, ticks)));
+      const closestDate = date(closest(+mouseTick, ticks));
+      const realX = this._d3Scale(closestDate);
       this._brushGroup.call(this._brush.move, [realX - 0.1, realX + 0.1]);
+      if (JSON.stringify(closestDate) !== JSON.stringify(this._selection) && this._on.end) this._on.end(closestDate);
+      this._selection = closestDate;
 
     }
 
@@ -83,18 +86,26 @@ export default class Timeline extends Axis {
     const ticks = this._availableTicks.map(Number);
     domain[0] = date(closest(domain[0], ticks));
     domain[1] = date(closest(domain[1], ticks));
-    const pixelDomain = domain.map(this._d3Scale),
-          single = pixelDomain[0] === pixelDomain[1];
-    if (single) {
-      pixelDomain[0] -= 0.1;
-      pixelDomain[1] += 0.1;
+
+    const single = +domain[0] === +domain[1];
+
+    if (this._brushing) {
+
+      const pixelDomain = domain.map(this._d3Scale);
+
+      if (single) {
+        pixelDomain[0] -= 0.1;
+        pixelDomain[1] += 0.1;
+      }
+
+      this._brushGroup.transition(this._transition).call(this._brush.move, pixelDomain);
+
     }
 
-    if (this._brushing) this._brushGroup.transition(this._transition).call(this._brush.move, pixelDomain);
-
     this._brushStyle();
-
-    if (this._on.end) this._on.end(single ? domain[0] : domain);
+    const value = single ? domain[0] : domain;
+    if (JSON.stringify(value) !== JSON.stringify(this._selection) && this._on.end) this._on.end(value);
+    this._selection = value;
 
   }
 
