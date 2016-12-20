@@ -229,6 +229,9 @@ export default class Timeline extends Axis {
     this._brushGroup.call(brush).transition(this._transition)
       .call(brush.move, selection);
 
+    this._outerBounds.y -= this._handleSize / 2;
+    this._outerBounds.height += this._handleSize / 2;
+
     return this;
 
   }
