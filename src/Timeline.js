@@ -42,8 +42,8 @@ export default class Timeline extends Axis {
     };
     this._shape = "Rect";
     this._shapeConfig = Object.assign({}, this._shapeConfig, {
-      height: 10,
-      width: d => this._domain.map(t => date(t).getTime()).includes(d.id) ? 2 : 1
+      height: d => d.tick ? 10 : 0,
+      width: d => d.tick ? this._domain.map(t => date(t).getTime()).includes(d.id) ? 2 : 1 : 0
     });
     this._snapping = true;
 
@@ -177,9 +177,11 @@ export default class Timeline extends Axis {
   _brushStyle() {
 
     const {height} = this._position;
-    const timelineHeight = this._shape === "Circle" ? this._shapeConfig.r * 2
-             : this._shape === "Rect" ? this._shapeConfig[height]
-             : this._tickSize;
+    const timelineHeight = this._shape === "Circle"
+                         ? typeof this._shapeConfig.r === "function" ? this._shapeConfig.r({tick: true}) * 2 : this._shapeConfig.r
+                         : this._shape === "Rect"
+                         ? typeof this._shapeConfig[height] === "function" ? this._shapeConfig[height]({tick: true}) : this._shapeConfig[height]
+                         : this._tickSize;
 
     this._brushGroup.selectAll(".overlay")
       .attr("cursor", this._brushing ? "crosshair" : "pointer");
