@@ -67,13 +67,9 @@ export default class Timeline extends Axis {
       domain[0] = date(closest(domain[0], ticks));
       domain[1] = date(closest(domain[1], ticks));
 
-      const single = +domain[0] === +domain[1],
-            value = single ? domain[0] : domain;
+      const single = +domain[0] === +domain[1];
 
-      if (this._selection && JSON.stringify(value) !== JSON.stringify(this._selection)) {
-        this._selection = value;
-        if (this._on.end) this._on.end(value);
-      }
+      this._selection = single ? domain[0] : domain;
 
       const pixelDomain = domain.map(this._d3Scale);
 
@@ -87,7 +83,7 @@ export default class Timeline extends Axis {
     }
 
     this._brushStyle();
-    if (this._on.brush) this._on.brush();
+    if (this._on.brush) this._on.brush(this._selection);
 
   }
 
@@ -125,11 +121,8 @@ export default class Timeline extends Axis {
     }
 
     this._brushStyle();
-    const value = single ? domain[0] : domain;
-    if (JSON.stringify(value) !== JSON.stringify(this._selection)) {
-      if (this._on.end) this._on.end(value);
-      this._selection = value;
-    }
+    this._selection = single ? domain[0] : domain;
+    if (this._on.end) this._on.end(this._selection);
 
   }
 
