@@ -173,4 +173,4 @@ If *value* is specified, toggles the snapping value and returns the current clas
 
 
 
-###### <sub>Documentation generated on Tue, 20 Dec 2016 19:53:07 GMT</sub>
+###### <sub>Documentation generated on Thu, 26 Jan 2017 16:39:33 GMT</sub>
