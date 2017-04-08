@@ -1,14 +1,10 @@
-import {test} from "tape";
+import zora from "zora";
 import {default as Timeline} from "../src/Timeline.js";
 
-test("Timeline", assert => {
+export default zora()
+  .test("Timeline", function *(assert) {
 
-  new Timeline()
-    .render(() => {
+    yield cb => new Timeline().render(cb);
+    assert.ok(true, "function success");
 
-      assert.true(true, "function success");
-      assert.end();
-
-    });
-
-});
+  });
