@@ -25,8 +25,8 @@
   "dependencies": {
     "d3-brush": "^1.0.4",
     "d3-selection": "^1.1.0",
-    "d3plus-axis": "^0.3.22",
-    "d3plus-common": "^0.6.12"
+    "d3plus-axis": "^0.3.29",
+    "d3plus-common": "^0.6.18"
   },
   "scripts": {
     "build": "d3plus-build",
