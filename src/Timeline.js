@@ -59,9 +59,9 @@ export default class Timeline extends Axis {
     if (event.sourceEvent && event.sourceEvent.offsetX && event.selection !== null && (!this._brushing || this._snapping)) {
 
       const domain = (this._brushing ? event.selection
-                   : [event.selection[0], event.selection[0]])
-                   .map(this._d3Scale.invert)
-                   .map(Number);
+        : [event.selection[0], event.selection[0]])
+        .map(this._d3Scale.invert)
+        .map(Number);
 
       const ticks = this._availableTicks.map(Number);
       domain[0] = date(closest(domain[0], ticks));
@@ -97,9 +97,9 @@ export default class Timeline extends Axis {
     if (!event.sourceEvent) return; // Only transition after input.
 
     const domain = (event.selection && this._brushing ? event.selection
-                 : [event.sourceEvent.offsetX, event.sourceEvent.offsetX])
-                 .map(this._d3Scale.invert)
-                 .map(Number);
+      : [event.sourceEvent.offsetX, event.sourceEvent.offsetX])
+      .map(this._d3Scale.invert)
+      .map(Number);
 
     const ticks = this._availableTicks.map(Number);
     domain[0] = date(closest(domain[0], ticks));
@@ -136,9 +136,9 @@ export default class Timeline extends Axis {
     if (event.sourceEvent !== null && (!this._brushing || this._snapping)) {
 
       const domain = (event.selection && this._brushing ? event.selection
-                   : [event.sourceEvent.offsetX, event.sourceEvent.offsetX])
-                   .map(this._d3Scale.invert)
-                   .map(Number);
+        : [event.sourceEvent.offsetX, event.sourceEvent.offsetX])
+        .map(this._d3Scale.invert)
+        .map(Number);
 
       const ticks = this._availableTicks.map(Number);
       domain[0] = date(closest(domain[0], ticks));
@@ -171,10 +171,10 @@ export default class Timeline extends Axis {
 
     const {height} = this._position;
     const timelineHeight = this._shape === "Circle"
-                         ? typeof this._shapeConfig.r === "function" ? this._shapeConfig.r({tick: true}) * 2 : this._shapeConfig.r
-                         : this._shape === "Rect"
-                         ? typeof this._shapeConfig[height] === "function" ? this._shapeConfig[height]({tick: true}) : this._shapeConfig[height]
-                         : this._tickSize;
+      ? typeof this._shapeConfig.r === "function" ? this._shapeConfig.r({tick: true}) * 2 : this._shapeConfig.r
+      : this._shape === "Rect"
+        ? typeof this._shapeConfig[height] === "function" ? this._shapeConfig[height]({tick: true}) : this._shapeConfig[height]
+        : this._tickSize;
 
     this._brushGroup.selectAll(".overlay")
       .attr("cursor", this._brushing ? "crosshair" : "pointer");
@@ -214,11 +214,11 @@ export default class Timeline extends Axis {
 
     const latest = this._availableTicks[this._availableTicks.length - 1];
     const selection = (this._selection === void 0 ? [latest, latest]
-                    : this._selection instanceof Array
-                    ? this._selection.slice()
-                    : [this._selection, this._selection])
-                    .map(date)
-                    .map(this._d3Scale);
+      : this._selection instanceof Array
+        ? this._selection.slice()
+        : [this._selection, this._selection])
+      .map(date)
+      .map(this._d3Scale);
 
     if (selection[0] === selection[1]) {
       selection[0] -= 0.1;
