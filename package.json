@@ -24,7 +24,7 @@
   },
   "dependencies": {
     "d3-brush": "^1.0.4",
-    "d3-selection": "^1.1.0",
+    "d3-selection": "^1.2.0",
     "d3plus-axis": "^0.3.39",
     "d3plus-common": "^0.6.25"
   },
