@@ -3,7 +3,7 @@
   "version": "0.3.7",
   "description": "An easy-to-use javascript timeline.",
   "main": "build/d3plus-timeline.js",
-  "jsnext:main": "index",
+  "jsnext:main": "es/index",
   "license": "MIT",
   "homepage": "https://d3plus.org",
   "repository": {
@@ -39,5 +39,13 @@
   },
   "devDependencies": {
     "d3plus-dev": "^0.5.4"
-  }
+  },
+  "module": "es/index",
+  "files": [
+    "bin",
+    "build/d3plus-timeline.js",
+    "build/d3plus-timeline.js.map",
+    "build/d3plus-timeline.min.js",
+    "es"
+  ]
 }
