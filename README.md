@@ -37,7 +37,7 @@ new d3plus.Timeline()
 
 ## API Reference
 
-##### Classes
+##### 
 * [Timeline](#Timeline)
 
 ---
@@ -149,4 +149,4 @@ This is a static method of [<code>Timeline</code>](#Timeline), and is chainable 
 
 
 
-###### <sub>Documentation generated on Wed, 20 Dec 2017 16:52:12 GMT</sub>
+###### <sub>Documentation generated on Thu, 21 Dec 2017 21:16:06 GMT</sub>
