@@ -42,8 +42,10 @@ export default class Timeline extends Axis {
     };
     this._shape = "Rect";
     this._shapeConfig = Object.assign({}, this._shapeConfig, {
-      height: d => d.tick ? 10 : 0,
-      width: d => d.tick ? this._domain.map(t => date(t).getTime()).includes(d.id) ? 2 : 1 : 0
+      fill: d => true ? "pink" : d,
+      labelBounds: {x: -20, y: -5, width: 40, height: 15},
+      height: d => true ? 40 : d.tick ? 10 : 0,
+      width: d => true ? this._space - 5 : (d.tick ? this._domain.map(t => date(t).getTime()).includes(d.id) ? 2 : 1 : 0)
     });
     this._snapping = true;
 
