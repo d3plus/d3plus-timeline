@@ -24,15 +24,20 @@ export default class Timeline extends Axis {
 
     super();
 
+    this._barConfig = {
+      strokeWidth: 0
+    };
     this._brushing = true;
     this._brushFilter = () => !event.button && event.detail < 2;
     this._domain = [2001, 2010];
     this._gridSize = 0;
     this._handleConfig = {
-      fill: "#444"
+      height: 30,
+      fill: true ? "#444" : "#444",
+      opacity: true ? 0.25 : 1
     };
-    this._handleSize = 6;
-    this._height = 100;
+    this._handleSize = true ? this._width / 6 : 6;
+    this._height = true ? 60 : 100;
     this._on = {};
     this.orient("bottom");
     this._scale = "time";
@@ -42,12 +47,13 @@ export default class Timeline extends Axis {
     };
     this._shape = "Rect";
     this._shapeConfig = Object.assign({}, this._shapeConfig, {
-      fill: d => true ? "pink" : d,
-      labelBounds: {x: -20, y: -5, width: 40, height: 15},
-      height: d => true ? 40 : d.tick ? 10 : 0,
-      width: d => true ? this._space - 5 : (d.tick ? this._domain.map(t => date(t).getTime()).includes(d.id) ? 2 : 1 : 0)
+      fill: d => true ? "#EEE" : d,
+      labelBounds: {x: -20, y: -5, width: 40, height: 30},
+      height: d => true ? 30 : d.tick ? 10 : 0,
+      width: d => true ? this._width / this._availableTicks.length : (d.tick ? this._domain.map(t => date(t).getTime()).includes(d.id) ? 2 : 1 : 0)
     });
     this._snapping = true;
+    this._padding = 0;
 
   }
 
@@ -188,6 +194,13 @@ export default class Timeline extends Axis {
     this._brushGroup.selectAll(".handle")
       .call(attrize, this._handleConfig)
       .attr("height", timelineHeight + this._handleSize);
+    
+    if (true) {
+      this._brushGroup.selectAll(".handle")
+      .call(attrize, this._handleConfig)
+      .attr("height", 30)
+      .attr("y", 7.5);
+    }
 
   }
 
@@ -205,7 +218,8 @@ export default class Timeline extends Axis {
 
     const offset = this._outerBounds[y],
           range = this._d3Scale.range();
-
+console.log(offset)
+console.log(range)
     const brush = this._brush = brushX()
       .extent([[range[0], offset], [range[1], offset + this._outerBounds[height]]])
       .filter(this._brushFilter)
@@ -233,6 +247,8 @@ export default class Timeline extends Axis {
 
     this._outerBounds.y -= this._handleSize / 2;
     this._outerBounds.height += this._handleSize / 2;
+
+    console.log(this)
 
     return this;
 
