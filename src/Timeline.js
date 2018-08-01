@@ -24,16 +24,13 @@ export default class Timeline extends Axis {
 
     super();
 
-    this._barConfig = {
-      strokeWidth: 0
-    };
     this._brushing = true;
     this._brushFilter = () => !event.button && event.detail < 2;
     this._buttons = true;
     this._domain = [2001, 2010];
     this._gridSize = 0;
     this._handleConfig = {
-      fill: true ? "#222" : "#444"
+      fill: this._buttons ? "#222" : "#444"
     };
     this._handleSize = 6;
     this._height = this._buttons ? 45 : 100;
@@ -46,13 +43,20 @@ export default class Timeline extends Axis {
     };
     this._shape = "Rect";
     this._shapeConfig = Object.assign({}, this._shapeConfig, {
-      fill: this._buttons ? "#EEE" : "#000",
-      labelBounds: {x: -20, y: -5, width: 40, height: 30},
+      fill: this._buttons ? "#EEE" : "#444",
       height: d => this._buttons ? 30 : d.tick ? 10 : 0,
-      width: d => this._buttons ? this._width / this._availableTicks.length : (d.tick ? this._domain.map(t => date(t).getTime()).includes(d.id) ? 2 : 1 : 0),
-      y: 45 - 30 + 5 + 2
+      width: d => this._buttons ? this._width / this._availableTicks.length : (d.tick ? this._domain.map(t => date(t).getTime()).includes(d.id) ? 2 : 1 : 0)
     });
     this._snapping = true;
+
+    if (this._buttons) {
+      this._barConfig = {
+        strokeWidth: 0
+      };
+      this._shapeConfig.height = 30;
+      this._shapeConfig.labelBounds = {x: -20, y: -5, width: 40, height: 30};
+      this._shapeConfig.y = this._height - 30 + 5 + 2;
+    }
 
   }
 
@@ -81,8 +85,9 @@ export default class Timeline extends Axis {
       const pixelDomain = domain.map(this._d3Scale);
 
       if (this._buttons) {
-        pixelDomain[0] -= 0.5 * this._width / this._availableTicks.length - this._handleSize / 2;
-        pixelDomain[1] += 0.5 * this._width / this._availableTicks.length - this._handleSize / 2;
+        const desv = 0.5 * (this._width / this._availableTicks.length - this._handleSize);
+        pixelDomain[0] -= desv;
+        pixelDomain[1] += desv;
       }
 
       if (single) {
@@ -129,8 +134,9 @@ export default class Timeline extends Axis {
       } 
 
       if (this._buttons) {
-        pixelDomain[0] -= 0.5 * this._width / this._availableTicks.length - this._handleSize / 2;
-        pixelDomain[1] += 0.5 * this._width / this._availableTicks.length - this._handleSize / 2;
+        const desv = 0.5 * (this._width / this._availableTicks.length - this._handleSize);
+        pixelDomain[0] -= desv;
+        pixelDomain[1] += desv;
       }
 
       this._brushGroup.transition(this._transition).call(this._brush.move, pixelDomain);
@@ -171,8 +177,9 @@ export default class Timeline extends Axis {
       }
 
       if (this._buttons) {
-        pixelDomain[0] -= 0.5 * this._width / this._availableTicks.length - this._handleSize / 2;
-        pixelDomain[1] += 0.5 * this._width / this._availableTicks.length - this._handleSize / 2;
+        const desv = 0.5 * (this._width / this._availableTicks.length - this._handleSize);
+        pixelDomain[0] -= desv;
+        pixelDomain[1] += desv;
       }
 
       this._brushGroup.call(this._brush.move, pixelDomain);
@@ -262,8 +269,9 @@ export default class Timeline extends Axis {
     }
 
     if (this._buttons) {
-      selection[0] -= 0.5 * this._width / this._availableTicks.length - this._handleSize / 2;
-      selection[1] += 0.5 * this._width / this._availableTicks.length - this._handleSize / 2;
+      const desv = 0.5 * (this._width / this._availableTicks.length - this._handleSize);
+      selection[0] -= desv;
+      selection[1] += desv;
     }
 
     this._brushGroup = elem("g.brushGroup", {parent: this._group});
@@ -300,6 +308,17 @@ function() {
   brushFilter(_) {
     return arguments.length ? (this._brushFilter = _, this) : this._brushFilter;
   }
+
+  /**
+      @memberof Timeline
+      @desc If *value* is specified, toggles the buttons value and returns the current class instance. If *value* is not specified, returns the current button value.
+      @param {Boolean} [*value* = false]
+      @chainable
+  */
+  buttons(_) {
+    return arguments.length ? (this._buttons = _, this) : this._buttons;
+  }
+
 
   /**
       @memberof Timeline
