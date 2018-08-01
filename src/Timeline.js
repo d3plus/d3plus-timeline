@@ -33,11 +33,11 @@ export default class Timeline extends Axis {
     this._gridSize = 0;
     this._handleConfig = {
       height: 30,
-      fill: true ? "#444" : "#444",
-      opacity: true ? 0.25 : 1
+      fill: true ? "#222" : "#444",
+      opacity: true ? 1 : 1
     };
-    this._handleSize = true ? this._width / 6 : 6;
-    this._height = true ? 60 : 100;
+    this._handleSize = 6;
+    this._height = true ? 45 : 100;
     this._on = {};
     this.orient("bottom");
     this._scale = "time";
@@ -50,10 +50,10 @@ export default class Timeline extends Axis {
       fill: d => true ? "#EEE" : d,
       labelBounds: {x: -20, y: -5, width: 40, height: 30},
       height: d => true ? 30 : d.tick ? 10 : 0,
-      width: d => true ? this._width / this._availableTicks.length : (d.tick ? this._domain.map(t => date(t).getTime()).includes(d.id) ? 2 : 1 : 0)
+      width: d => true ? this._width / this._availableTicks.length : (d.tick ? this._domain.map(t => date(t).getTime()).includes(d.id) ? 2 : 1 : 0),
+      y: 45 - 30 + 5 + 2
     });
     this._snapping = true;
-    this._padding = 0;
 
   }
 
@@ -196,6 +196,13 @@ export default class Timeline extends Axis {
       .attr("height", timelineHeight + this._handleSize);
     
     if (true) {
+      
+
+      this._brushGroup.selectAll(".selection")
+      .call(attrize, this._selectionConfig)
+      .attr("height", timelineHeight)
+      .attr("y", 7.5);
+    
       this._brushGroup.selectAll(".handle")
       .call(attrize, this._handleConfig)
       .attr("height", 30)
