@@ -7,7 +7,7 @@ import {brushX} from "d3-brush";
 import {event} from "d3-selection";
 
 import {Axis, date} from "d3plus-axis";
-import {attrize, closest, elem} from "d3plus-common";
+import {attrize, closest, elem, accessor, constant} from "d3plus-common";
 
 /**
     @class Timeline
@@ -26,7 +26,7 @@ export default class Timeline extends Axis {
 
     this._brushing = true;
     this._brushFilter = () => !event.button && event.detail < 2;
-    this._buttons = true;
+    this._buttons = constant(false);
     this._domain = [2001, 2010];
     this._gridSize = 0;
     this._handleConfig = {
@@ -44,7 +44,7 @@ export default class Timeline extends Axis {
     this._shape = "Rect";
     this._shapeConfig = Object.assign({}, this._shapeConfig, {
       fill: this._buttons ? "#EEE" : "#444",
-      height: d => this._buttons ? 30 : d.tick ? 10 : 0,
+      height: d => d.tick ? 10 : 0,
       width: d => this._buttons ? this._width / this._availableTicks.length : (d.tick ? this._domain.map(t => date(t).getTime()).includes(d.id) ? 2 : 1 : 0)
     });
     this._snapping = true;
@@ -53,9 +53,11 @@ export default class Timeline extends Axis {
       this._barConfig = {
         strokeWidth: 0
       };
-      this._shapeConfig.height = 30;
-      this._shapeConfig.labelBounds = {x: -20, y: -5, width: 40, height: 30};
-      this._shapeConfig.y = this._height - 30 + 5 + 2;
+      this._shapeConfig = Object.assign({}, this._shapeConfig, {
+        height: 30,
+        labelBounds: {x: -20, y: -5, width: 40, height: 30},
+        y: this._height - 30 + 5 + 2
+      });
     }
 
   }
@@ -230,6 +232,10 @@ export default class Timeline extends Axis {
 
     }
 
+  }
+
+  _draw() {
+    console.log("eduardo")
   }
 
   /**
