@@ -26,14 +26,15 @@ export default class Timeline extends Axis {
 
     this._brushing = true;
     this._brushFilter = () => !event.button && event.detail < 2;
-    this._buttons = constant(false);
+    this._buttonBehavior = "ticks";
+    this._buttonBehaviorCurrent =  this._buttonBehavior !== "auto" ? this._buttonBehavior : "buttons";
     this._domain = [2001, 2010];
     this._gridSize = 0;
     this._handleConfig = {
-      fill: this._buttons ? "#222" : "#444"
+      fill: this._buttonBehaviorCurrent === "buttons" ? "#222" : "#444"
     };
     this._handleSize = 6;
-    this._height = this._buttons ? 45 : 100;
+    this._height = this._buttonBehaviorCurrent === "buttons" ? 45 : 100;
     this._on = {};
     this.orient("bottom");
     this._scale = "time";
@@ -43,22 +44,22 @@ export default class Timeline extends Axis {
     };
     this._shape = "Rect";
     this._shapeConfig = Object.assign({}, this._shapeConfig, {
-      fill: this._buttons ? "#EEE" : "#444",
-      height: d => d.tick ? 10 : 0,
-      width: d => this._buttons ? this._width / this._availableTicks.length : (d.tick ? this._domain.map(t => date(t).getTime()).includes(d.id) ? 2 : 1 : 0)
-    });
+      fill: this._buttonBehaviorCurrent === "buttons" ? "#EEE" : "#444",
+      height: d => this._buttonBehaviorCurrent === "buttons" ? 30 : d.tick ? 10 : 0,
+      width: d => this._buttonBehaviorCurrent === "buttons" ? this._width / this._availableTicks.length : d.tick ? this._domain.map(t => date(t).getTime()).includes(d.id) ? 2 : 1 : 0
+    }, this._buttonBehaviorCurrent === "buttons" ? {
+      labelBounds: {x: -20, y: -5, width: 40, height: 30},
+      y: this._height - 30 + 5 + 2
+    } : {});
     this._snapping = true;
 
-    if (this._buttons) {
+    if (this._buttonBehaviorCurrent === "buttons") {
       this._barConfig = {
         strokeWidth: 0
       };
-      this._shapeConfig = Object.assign({}, this._shapeConfig, {
-        height: 30,
-        labelBounds: {x: -20, y: -5, width: 40, height: 30},
-        y: this._height - 30 + 5 + 2
-      });
     }
+
+    console.log(this._buttonBehaviorCurrent)
 
   }
 
@@ -86,7 +87,9 @@ export default class Timeline extends Axis {
 
       const pixelDomain = domain.map(this._d3Scale);
 
-      if (this._buttons) {
+      const buttons = this._buttonBehavior === "buttons" || this._buttonBehavior === "auto" && this._availableTicks === this._visibleTicks;
+
+      if (buttons) {
         const desv = 0.5 * (this._width / this._availableTicks.length - this._handleSize);
         pixelDomain[0] -= desv;
         pixelDomain[1] += desv;
@@ -135,7 +138,9 @@ export default class Timeline extends Axis {
         pixelDomain[1] += 0.1;
       } 
 
-      if (this._buttons) {
+      const buttons = this._buttonBehavior === "buttons" || this._buttonBehavior === "auto" && this._availableTicks === this._visibleTicks;
+
+      if (buttons) {
         const desv = 0.5 * (this._width / this._availableTicks.length - this._handleSize);
         pixelDomain[0] -= desv;
         pixelDomain[1] += desv;
@@ -178,7 +183,9 @@ export default class Timeline extends Axis {
         pixelDomain[1] += 0.1;
       }
 
-      if (this._buttons) {
+      const buttons = this._buttonBehavior === "buttons" || this._buttonBehavior === "auto" && this._availableTicks === this._visibleTicks;
+
+      if (buttons) {
         const desv = 0.5 * (this._width / this._availableTicks.length - this._handleSize);
         pixelDomain[0] -= desv;
         pixelDomain[1] += desv;
@@ -218,7 +225,9 @@ export default class Timeline extends Axis {
       .call(attrize, this._handleConfig)
       .attr("height", timelineHeight + this._handleSize);
     
-    if (this._buttons) {
+    const buttons = this._buttonBehavior === "buttons" || this._buttonBehavior === "auto" && this._availableTicks === this._visibleTicks;
+    
+    if (buttons) {
 
       this._brushGroup.selectAll(".selection")
       .call(attrize, this._selectionConfig)
@@ -234,10 +243,6 @@ export default class Timeline extends Axis {
 
   }
 
-  _draw() {
-    console.log("eduardo")
-  }
-
   /**
       @memberof Timeline
       @desc Draws the timeline.
@@ -247,6 +252,8 @@ export default class Timeline extends Axis {
   render(callback) {
 
     super.render(callback);
+
+    this._buttonBehaviorCurrent = this._buttonBehavior === "buttons" || this._buttonBehavior === "auto" && this._availableTicks === this._visibleTicks ? "buttons" : "ticks";
 
     const {height, y} = this._position;
 
@@ -274,7 +281,9 @@ export default class Timeline extends Axis {
       selection[1] += 0.1;
     }
 
-    if (this._buttons) {
+    const buttons = this._buttonBehavior === "buttons" || this._buttonBehavior === "auto" && this._availableTicks === this._visibleTicks;
+
+    if (buttons) {
       const desv = 0.5 * (this._width / this._availableTicks.length - this._handleSize);
       selection[0] -= desv;
       selection[1] += desv;
@@ -321,8 +330,8 @@ function() {
       @param {Boolean} [*value* = false]
       @chainable
   */
-  buttons(_) {
-    return arguments.length ? (this._buttons = _, this) : this._buttons;
+  buttonBehavior(_) {
+    return arguments.length ? (this._buttonBehavior = _, this) : this._buttonBehavior;
   }
 
 
