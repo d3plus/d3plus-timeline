@@ -23,16 +23,18 @@ export default class Timeline extends Axis {
   constructor() {
 
     super();
-
+    this._barConfig = Object.assign({}, this._barConfig, {
+      "stroke-width": d => this._buttonBehavior === "buttons" ? 0 : 1
+    });
     this._brushing = true;
     this._brushFilter = () => !event.button && event.detail < 2;
-    this._buttonBehavior = "buttons";
-    this._buttonBehaviorCurrent =  this._buttonBehavior !== "auto" ? this._buttonBehavior : "buttons";
+    this._buttonBehavior = "ticks";
+    this._buttonBehaviorCurrent = "ticks";
     this._buttonHeight = 30;
     this._domain = [2001, 2010];
     this._gridSize = 0;
     this._handleConfig = {
-      fill: this._buttonBehaviorCurrent === "buttons" ? "#222" : "#444"
+      fill: "#444"
     };
     this._handleSize = 6;
     this._height = 100;
@@ -45,21 +47,13 @@ export default class Timeline extends Axis {
     };
     this._shape = "Rect";
     this._shapeConfig = Object.assign({}, this._shapeConfig, {
-      fill: this._buttonBehaviorCurrent === "buttons" ? "#EEE" : "#444",
-      height: d => this._buttonBehaviorCurrent === "buttons" ? this._buttonHeight : d.tick ? 10 : 0,
-      width: d => this._buttonBehaviorCurrent === "buttons" ? this._width / this._availableTicks.length : d.tick ? this._domain.map(t => date(t).getTime()).includes(d.id) ? 2 : 1 : 0
-    }, this._buttonBehaviorCurrent === "buttons" ? {
-      labelBounds: {x: -20, y: -5, width: 40, height: this._buttonHeight},
-      y: this._height / 2
-      //y: this._height - 30 + 5 + 2
-    } : {});
+      labelBounds: d => this._buttonBehavior === "buttons" ? {x: -20, y: -5, width: 40, height: this._buttonHeight} : d.labelBounds,
+      fill: d => this._buttonBehavior === "buttons" ? "#EEE" : "#444",
+      height: d => this._buttonBehavior === "buttons" ? this._buttonHeight : d.tick ? 10 : 0,
+      width: d => this._buttonBehavior === "buttons" ? this._width / this._availableTicks.length : d.tick ? this._domain.map(t => date(t).getTime()).includes(d.id) ? 2 : 1 : 0,
+      y: d => this._buttonBehavior === "buttons" ? this._height / 2 : d.y
+    });
     this._snapping = true;
-
-    if (this._buttonBehaviorCurrent === "buttons") {
-      this._barConfig = {
-        strokeWidth: 0
-      };
-    }
 
   }
 
@@ -87,9 +81,7 @@ export default class Timeline extends Axis {
 
       const pixelDomain = domain.map(this._d3Scale);
 
-      const buttons = this._buttonBehavior === "buttons" || this._buttonBehavior === "auto" && this._availableTicks === this._visibleTicks;
-
-      if (buttons) {
+      if (this._buttonBehaviorCurrent === "buttons") {
         const desv = 0.5 * (this._width / this._availableTicks.length - this._handleSize);
         pixelDomain[0] -= desv;
         pixelDomain[1] += desv;
@@ -138,9 +130,7 @@ export default class Timeline extends Axis {
         pixelDomain[1] += 0.1;
       } 
 
-      const buttons = this._buttonBehavior === "buttons" || this._buttonBehavior === "auto" && this._availableTicks === this._visibleTicks;
-
-      if (buttons) {
+      if (this._buttonBehaviorCurrent === "buttons") {
         const desv = 0.5 * (this._width / this._availableTicks.length - this._handleSize);
         pixelDomain[0] -= desv;
         pixelDomain[1] += desv;
@@ -183,9 +173,7 @@ export default class Timeline extends Axis {
         pixelDomain[1] += 0.1;
       }
 
-      const buttons = this._buttonBehavior === "buttons" || this._buttonBehavior === "auto" && this._availableTicks === this._visibleTicks;
-
-      if (buttons) {
+      if (this._buttonBehaviorCurrent === "buttons") {
         const desv = 0.5 * (this._width / this._availableTicks.length - this._handleSize);
         pixelDomain[0] -= desv;
         pixelDomain[1] += desv;
@@ -224,10 +212,8 @@ export default class Timeline extends Axis {
     this._brushGroup.selectAll(".handle")
       .call(attrize, this._handleConfig)
       .attr("height", timelineHeight + this._handleSize);
-    
-    const buttons = this._buttonBehavior === "buttons" || this._buttonBehavior === "auto" && this._availableTicks === this._visibleTicks;
-    
-    if (buttons) {
+
+    if (this._buttonBehaviorCurrent === "buttons") {
 
       const yTransform = this._height / 2 - this._buttonHeight / 2;
 
@@ -256,6 +242,9 @@ export default class Timeline extends Axis {
     super.render(callback);
 
     const {height, y} = this._position;
+    const buttonBehavior = typeof this._buttonBehavior === "function" ? this._buttonBehavior(d => d) : this._buttonBehavior;
+    console.log(this._buttonBehavior)
+    this._buttonBehaviorCurrent = buttonBehavior === "buttons" || buttonBehavior === "auto" && this._availableTicks === this._visibleTicks ? "buttons" : "ticks";
 
     const offset = this._outerBounds[y],
           range = this._d3Scale.range();
@@ -281,9 +270,7 @@ export default class Timeline extends Axis {
       selection[1] += 0.1;
     }
 
-    const buttons = this._buttonBehavior === "buttons" || this._buttonBehavior === "auto" && this._availableTicks === this._visibleTicks;
-
-    if (buttons) {
+    if (this._buttonBehaviorCurrent === "buttons") {
       const desv = 0.5 * (this._width / this._availableTicks.length - this._handleSize);
       selection[0] -= desv;
       selection[1] += desv;
@@ -292,8 +279,6 @@ export default class Timeline extends Axis {
     this._brushGroup = elem("g.brushGroup", {parent: this._group});
     this._brushGroup.call(brush).transition(this._transition)
       .call(brush.move, selection);
-
-    this._buttonBehaviorCurrent = this._buttonBehavior === "buttons" || this._buttonBehavior === "auto" && this._availableTicks === this._visibleTicks ? "buttons" : "ticks";
 
     this._outerBounds.y -= this._handleSize / 2;
     this._outerBounds.height += this._handleSize / 2;
@@ -329,7 +314,7 @@ function() {
   /**
       @memberof Timeline
       @desc If *value* is specified, toggles the buttons value and returns the current class instance. If *value* is not specified, returns the current button value.
-      @param {Boolean} [*value* = false]
+      @param {String} [*value* = false]
       @chainable
   */
   buttonBehavior(_) {
