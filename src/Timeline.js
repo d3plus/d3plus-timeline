@@ -242,9 +242,7 @@ export default class Timeline extends Axis {
     super.render(callback);
 
     const {height, y} = this._position;
-    const buttonBehavior = typeof this._buttonBehavior === "function" ? this._buttonBehavior(d => d) : this._buttonBehavior;
-    console.log(this._buttonBehavior)
-    this._buttonBehaviorCurrent = buttonBehavior === "buttons" || buttonBehavior === "auto" && this._availableTicks === this._visibleTicks ? "buttons" : "ticks";
+    this._buttonBehaviorCurrent = this._buttonBehavior === "buttons" || this._buttonBehavior === "auto" && this._availableTicks.length === this._visibleTicks.length ? "buttons" : "ticks";
 
     const offset = this._outerBounds[y],
           range = this._d3Scale.range();
