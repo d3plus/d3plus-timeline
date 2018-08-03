@@ -312,7 +312,7 @@ function() {
   /**
       @memberof Timeline
       @desc If *value* is specified, toggles the buttons value and returns the current class instance. If *value* is not specified, returns the current button value.
-      @param {String} [*value* = false]
+      @param {String} [*value* = "ticks"]
       @chainable
   */
   buttonBehavior(_) {
