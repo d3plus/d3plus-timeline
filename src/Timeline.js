@@ -7,7 +7,7 @@ import {brushX} from "d3-brush";
 import {event} from "d3-selection";
 
 import {Axis, date} from "d3plus-axis";
-import {attrize, closest, elem, accessor, constant} from "d3plus-common";
+import {attrize, closest, elem} from "d3plus-common";
 
 /**
     @class Timeline
