@@ -4,6 +4,6 @@ Use [.buttonBehavior( )](https://github.com/d3plus/d3plus-timeline#Timeline.butt
 ```js
 new d3plus.Timeline()
   .domain([2001, 2010])
-  .buttonBehavior("buttons")
+  .buttonBehavior("ticks")
   .render();
 ```
