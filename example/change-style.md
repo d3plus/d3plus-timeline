@@ -11,6 +11,7 @@ new d3plus.Timeline()
     fill: "red",
     stroke: "black"
   })
+  .buttonBehavior("ticks")
   .shapeConfig({
     height: 6,
     fill: "red",
@@ -19,3 +20,5 @@ new d3plus.Timeline()
   })
   .render();
 ```
+
+*If you want to change the style of shapes, you must to set `.buttonBehavior("ticks")` for correct behavior in Timeline. Currently "buttons" method doesn't support with `shapeConfig`.
