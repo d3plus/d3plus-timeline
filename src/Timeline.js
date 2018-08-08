@@ -2,12 +2,13 @@
     @external Axis
     @see https://github.com/d3plus/d3plus-axis#Axis
 */
-
+import {max} from "d3-array";
 import {brushX} from "d3-brush";
 import {event} from "d3-selection";
-
+import {scaleTime} from "d3-scale";
 import {Axis, date} from "d3plus-axis";
 import {attrize, closest, elem} from "d3plus-common";
+import {textWidth, textWrap} from "d3plus-text";
 
 /**
     @class Timeline
@@ -56,6 +57,7 @@ export default class Timeline extends Axis {
 
   }
 
+
   /**
       @memberof Timeline
       @desc Triggered on brush "brush".
@@ -81,8 +83,8 @@ export default class Timeline extends Axis {
       const pixelDomain = domain.map(this._d3Scale);
 
       if (this._buttonBehaviorCurrent === "buttons") {
-        pixelDomain[0] -= this._brushWidth;
-        pixelDomain[1] += this._brushWidth;
+        pixelDomain[0] -= this._buttonWidth;
+        pixelDomain[1] += this._buttonWidth;
       }
 
       if (single) {
@@ -129,8 +131,8 @@ export default class Timeline extends Axis {
       } 
 
       if (this._buttonBehaviorCurrent === "buttons") {
-        pixelDomain[0] -= this._brushWidth;
-        pixelDomain[1] += this._brushWidth;
+        pixelDomain[0] -= this._buttonWidth;
+        pixelDomain[1] += this._buttonWidth;
       }
 
       this._brushGroup.transition(this._transition).call(this._brush.move, pixelDomain);
@@ -171,8 +173,8 @@ export default class Timeline extends Axis {
       }
 
       if (this._buttonBehaviorCurrent === "buttons") {
-        pixelDomain[0] -= this._brushWidth;
-        pixelDomain[1] += this._brushWidth;
+        pixelDomain[0] -= this._buttonWidth;
+        pixelDomain[1] += this._buttonWidth;
       }
 
       this._brushGroup.call(this._brush.move, pixelDomain);
@@ -201,25 +203,21 @@ export default class Timeline extends Axis {
     this._brushGroup.selectAll(".overlay")
       .attr("cursor", this._brushing ? "crosshair" : "pointer");
 
+    const yTransform = this._buttonBehaviorCurrent === "buttons" ? this._height / 2 - this._buttonHeight / 2 : timelineHeight;
+
     this._brushGroup.selectAll(".selection")
       .call(attrize, this._selectionConfig)
-      .attr("height", timelineHeight);
+      .attr("height", timelineHeight)
+      .attr("y", yTransform);
 
     this._brushGroup.selectAll(".handle")
       .call(attrize, this._handleConfig)
-      .attr("height", timelineHeight + this._handleSize);
-
-    const yTransform = this._height / 2 - this._buttonHeight / 2;
+      .attr("height", timelineHeight + this._handleSize)
+      .attr("y", yTransform);
 
     if (this._buttonBehaviorCurrent === "buttons") {
-
-      this._brushGroup.selectAll(".selection")
-      .attr("y", yTransform);
-
       this._brushGroup.selectAll(".handle")
-      .attr("height", this._buttonHeight)
-      .attr("y", yTransform);
-
+      .attr("height", this._buttonHeight);
     }
 
   }
@@ -231,14 +229,47 @@ export default class Timeline extends Axis {
       @chainable
   */
   render(callback) {
-
     const {height, y} = this._position;
-    this._buttonBehaviorCurrent = this._buttonBehavior === "buttons" || this._buttonBehavior === "auto" && this._availableTicks === this._visibleTicks ? "buttons" : "ticks";
+    this._d3ScaleA = scaleTime().domain(this._domain.map(date)).range([0, this._width]);
+
+    const tickFormat = this._d3ScaleA.tickFormat();
+
+    // Measures size of ticks
+    const textData = this._d3ScaleA.ticks().map((d, i) => {
+      const f = this._shapeConfig.labelConfig.fontFamily(d, i),
+            s = this._shapeConfig.labelConfig.fontSize(d, i);
+
+      const wrap = textWrap()
+        .fontFamily(f)
+        .fontSize(s)
+        .lineHeight(this._shapeConfig.lineHeight ? this._shapeConfig.lineHeight(d, i) : undefined);
+
+      const res = wrap(tickFormat(d));
+      res.lines = res.lines.filter(d => d !== "");
+      res.d = d;
+      res.fS = s;
+      res.width = res.lines.length
+        ? Math.ceil(max(res.lines.map(line => textWidth(line, {"font-family": f, "font-size": s})))) + s / 4
+        : 0;
+      res.height = res.lines.length ? Math.ceil(res.lines.length * (wrap.lineHeight() + 1)) : 0;
+      res.offset = 0;
+      res.hidden = false;
+      if (res.width % 2) res.width++;
+
+      return res;
+
+    });
+
+    const ticksWidth = textData.reduce((d, i) => d + i.width, 0);
+    
+    this._buttonBehaviorCurrent = this._buttonBehavior === "buttons" || this._buttonBehavior === "auto" && ticksWidth < this._width ? "buttons" : "ticks";
 
     super.render(callback);
 
     const offset = this._outerBounds[y],
           range = this._d3Scale.range();
+
+    this._buttonBehaviorAuto = this._buttonBehavior === "auto" ? this._availableTicks === this._visibleTicks ? "buttons" : "ticks" : this._buttonBehavior;
 
     const brush = this._brush = brushX()
       .extent([[range[0], offset], [range[1], offset + this._outerBounds[height]]])
@@ -262,9 +293,9 @@ export default class Timeline extends Axis {
     }
 
     if (this._buttonBehaviorCurrent === "buttons") {
-      this._brushWidth = 0.5 * (this._width / this._availableTicks.length - this._handleSize);
-      selection[0] -= this._brushWidth;
-      selection[1] += this._brushWidth;
+      this._buttonWidth = 0.5 * (this._width / this._availableTicks.length - this._handleSize);
+      selection[0] -= this._buttonWidth;
+      selection[1] += this._buttonWidth;
     }
 
     this._brushGroup = elem("g.brushGroup", {parent: this._group});
