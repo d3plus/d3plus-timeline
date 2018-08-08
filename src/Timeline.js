@@ -4,8 +4,8 @@
 */
 import {max} from "d3-array";
 import {brushX} from "d3-brush";
-import {event} from "d3-selection";
 import {scaleTime} from "d3-scale";
+import {event} from "d3-selection";
 import {Axis, date} from "d3plus-axis";
 import {attrize, closest, elem} from "d3plus-common";
 import {textWidth, textWrap} from "d3plus-text";
@@ -247,7 +247,6 @@ export default class Timeline extends Axis {
     });
 
     const ticksWidth = textData.reduce((d, i) => d + i.width, 0);
-    console.log(ticksWidth)
 
     this._buttonBehaviorCurrent = this._buttonBehavior === "auto" ? ticksWidth < this._width ? "buttons" : "ticks" : this._buttonBehavior;
 
