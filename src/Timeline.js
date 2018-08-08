@@ -238,22 +238,16 @@ export default class Timeline extends Axis {
         .lineHeight(this._shapeConfig.lineHeight ? this._shapeConfig.lineHeight(d, i) : undefined);
 
       const res = wrap(tickFormat(d));
-      res.lines = res.lines.filter(d => d !== "");
-      res.d = d;
-      res.fS = s;
       res.width = res.lines.length
         ? Math.ceil(max(res.lines.map(line => textWidth(line, {"font-family": f, "font-size": s})))) + s / 4
         : 0;
-      res.height = res.lines.length ? Math.ceil(res.lines.length * (wrap.lineHeight() + 1)) : 0;
-      res.offset = 0;
-      res.hidden = false;
       if (res.width % 2) res.width++;
 
       return res;
-
     });
 
     const ticksWidth = textData.reduce((d, i) => d + i.width, 0);
+    console.log(ticksWidth)
 
     this._buttonBehaviorCurrent = this._buttonBehavior === "auto" ? ticksWidth < this._width ? "buttons" : "ticks" : this._buttonBehavior;
 
@@ -317,8 +311,8 @@ function() {
 
   /**
       @memberof Timeline
-      @desc If *value* is specified, toggles the buttons value and returns the current class instance. If *value* is not specified, returns the current button value.
-      @param {String} [*value* = "ticks"]
+      @desc If *value* is specified, toggles the style of the timeline. Accepted values are `"auto"`, `"buttons"` and `"ticks"`. If *value* is not specified, returns the current button value.
+      @param {String} [*value* = "auto"]
       @chainable
   */
   buttonBehavior(_) {
