@@ -197,7 +197,7 @@ export default class Timeline extends Axis {
 
   /**
       @memberof Timeline
-      @desc Update interval of brush.
+      @desc Update limits of the brush.
       @private
   */
   _updateBrushLimit(selection) {
@@ -255,14 +255,12 @@ export default class Timeline extends Axis {
 
     const ticksWidth = textData.reduce((d, i) => d + i.width, 0);
 
-    this._buttonBehaviorCurrent = this._buttonBehavior === "buttons" || this._buttonBehavior === "auto" && ticksWidth < this._width ? "buttons" : "ticks";
+    this._buttonBehaviorCurrent = this._buttonBehavior === "auto" ? ticksWidth < this._width ? "buttons" : "ticks" : this._buttonBehavior;
 
     super.render(callback);
 
     const offset = this._outerBounds[y],
           range = this._d3Scale.range();
-
-    this._buttonBehaviorAuto = this._buttonBehavior === "auto" ? this._availableTicks === this._visibleTicks ? "buttons" : "ticks" : this._buttonBehavior;
 
     const brush = this._brush = brushX()
       .extent([[range[0], offset], [range[1], offset + this._outerBounds[height]]])
