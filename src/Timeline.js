@@ -47,7 +47,8 @@ export default class Timeline extends Axis {
     };
     this._shape = "Rect";
     this._shapeConfig = Object.assign({}, this._shapeConfig, {
-      labelBounds: d => this._buttonBehaviorCurrent === "buttons" ? {x: -20, y: -5, width: 40, height: this._buttonHeight} : d.labelBounds,
+      labelBounds: d => this._buttonBehaviorCurrent === "buttons" ? {x: d.labelBounds.x, y: -5, width: d.labelBounds.width, height: this._buttonHeight} : d.labelBounds,
+      labelConfig: Object.assign({}, this._shapeConfig.labelConfig, {rotate: 0}),
       fill: () => this._buttonBehaviorCurrent === "buttons" ? "#EEE" : "#444",
       height: d => this._buttonBehaviorCurrent === "buttons" ? this._buttonHeight : d.tick ? 10 : 0,
       width: d => this._buttonBehaviorCurrent === "buttons" ? this._width / this._availableTicks.length : d.tick ? this._domain.map(t => date(t).getTime()).includes(d.id) ? 2 : 1 : 0,
@@ -81,16 +82,7 @@ export default class Timeline extends Axis {
       this._selection = single ? domain[0] : domain;
 
       const pixelDomain = domain.map(this._d3Scale);
-
-      if (this._buttonBehaviorCurrent === "buttons") {
-        pixelDomain[0] -= this._buttonWidth;
-        pixelDomain[1] += this._buttonWidth;
-      }
-
-      if (single) {
-        pixelDomain[0] -= 0.1;
-        pixelDomain[1] += 0.1;
-      }
+      this._updateBrushLimit(pixelDomain);
 
       this._brushGroup.call(this._brush.move, pixelDomain);
 
@@ -124,16 +116,7 @@ export default class Timeline extends Axis {
     if (this._brushing || !this._snapping) {
 
       const pixelDomain = domain.map(this._d3Scale);
-      
-      if (single) {
-        pixelDomain[0] -= 0.1;
-        pixelDomain[1] += 0.1;
-      } 
-
-      if (this._buttonBehaviorCurrent === "buttons") {
-        pixelDomain[0] -= this._buttonWidth;
-        pixelDomain[1] += this._buttonWidth;
-      }
+      this._updateBrushLimit(pixelDomain);
 
       this._brushGroup.transition(this._transition).call(this._brush.move, pixelDomain);
 
@@ -163,19 +146,8 @@ export default class Timeline extends Axis {
       domain[0] = date(closest(domain[0], ticks));
       domain[1] = date(closest(domain[1], ticks));
 
-      const single = +domain[0] === +domain[1];
-
       const pixelDomain = domain.map(this._d3Scale);
-
-      if (single) {
-        pixelDomain[0] -= 0.1;
-        pixelDomain[1] += 0.1;
-      }
-
-      if (this._buttonBehaviorCurrent === "buttons") {
-        pixelDomain[0] -= this._buttonWidth;
-        pixelDomain[1] += this._buttonWidth;
-      }
+      this._updateBrushLimit(pixelDomain);
 
       this._brushGroup.call(this._brush.move, pixelDomain);
 
@@ -203,23 +175,44 @@ export default class Timeline extends Axis {
     this._brushGroup.selectAll(".overlay")
       .attr("cursor", this._brushing ? "crosshair" : "pointer");
 
-    const yTransform = this._buttonBehaviorCurrent === "buttons" ? this._height / 2 - this._buttonHeight / 2 : timelineHeight;
+    const yTransform = this._height / 2 - this._buttonHeight / 2;
 
-    this._brushGroup.selectAll(".selection")
+    const brushSelection = this._brushGroup.selectAll(".selection")
       .call(attrize, this._selectionConfig)
-      .attr("height", timelineHeight)
-      .attr("y", yTransform);
+      .attr("height", timelineHeight);
 
-    this._brushGroup.selectAll(".handle")
+    const brushHandle = this._brushGroup.selectAll(".handle")
       .call(attrize, this._handleConfig)
-      .attr("height", timelineHeight + this._handleSize)
-      .attr("y", yTransform);
+      .attr("height", timelineHeight + this._handleSize);
 
     if (this._buttonBehaviorCurrent === "buttons") {
       this._brushGroup.selectAll(".handle")
       .attr("height", this._buttonHeight);
+
+      brushSelection.attr("y", yTransform);
+      brushHandle.attr("y", yTransform);
     }
 
+  }
+
+  /**
+      @memberof Timeline
+      @desc Update interval of brush.
+      @private
+  */
+  _updateBrushLimit(selection) {
+    if (selection[0] === selection[1]) {
+      selection[0] -= 0.1;
+      selection[1] += 0.1;
+    }
+
+    if (this._buttonBehaviorCurrent === "buttons") {
+      this._buttonWidth = 0.5 * (this._width / this._availableTicks.length - this._handleSize);
+      selection[0] -= this._buttonWidth;
+      selection[1] += this._buttonWidth;
+    }
+
+    return selection;
   }
 
   /**
@@ -230,12 +223,12 @@ export default class Timeline extends Axis {
   */
   render(callback) {
     const {height, y} = this._position;
-    this._d3ScaleA = scaleTime().domain(this._domain.map(date)).range([0, this._width]);
+    this._d3Scale = scaleTime().domain(this._domain.map(date)).range([0, this._width]);
 
-    const tickFormat = this._d3ScaleA.tickFormat();
+    const tickFormat = this._d3Scale.tickFormat();
 
     // Measures size of ticks
-    const textData = this._d3ScaleA.ticks().map((d, i) => {
+    const textData = this._d3Scale.ticks().map((d, i) => {
       const f = this._shapeConfig.labelConfig.fontFamily(d, i),
             s = this._shapeConfig.labelConfig.fontSize(d, i);
 
@@ -261,7 +254,7 @@ export default class Timeline extends Axis {
     });
 
     const ticksWidth = textData.reduce((d, i) => d + i.width, 0);
-    
+
     this._buttonBehaviorCurrent = this._buttonBehavior === "buttons" || this._buttonBehavior === "auto" && ticksWidth < this._width ? "buttons" : "ticks";
 
     super.render(callback);
@@ -287,16 +280,7 @@ export default class Timeline extends Axis {
       .map(date)
       .map(this._d3Scale);
 
-    if (selection[0] === selection[1]) {
-      selection[0] -= 0.1;
-      selection[1] += 0.1;
-    }
-
-    if (this._buttonBehaviorCurrent === "buttons") {
-      this._buttonWidth = 0.5 * (this._width / this._availableTicks.length - this._handleSize);
-      selection[0] -= this._buttonWidth;
-      selection[1] += this._buttonWidth;
-    }
+    this._updateBrushLimit(selection);
 
     this._brushGroup = elem("g.brushGroup", {parent: this._group});
     this._brushGroup.call(brush).transition(this._transition)
