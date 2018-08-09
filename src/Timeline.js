@@ -175,19 +175,16 @@ export default class Timeline extends Axis {
     this._brushGroup.selectAll(".overlay")
       .attr("cursor", this._brushing ? "crosshair" : "pointer");
 
-    const yTransform = this._height / 2 - this._buttonHeight / 2;
-
     const brushSelection = this._brushGroup.selectAll(".selection")
       .call(attrize, this._selectionConfig)
       .attr("height", timelineHeight);
 
     const brushHandle = this._brushGroup.selectAll(".handle")
       .call(attrize, this._handleConfig)
-      .attr("height", timelineHeight + this._handleSize);
+      .attr("height", this._buttonBehaviorCurrent === "buttons" ? this._buttonHeight : timelineHeight + this._handleSize);
 
     if (this._buttonBehaviorCurrent === "buttons") {
-      this._brushGroup.selectAll(".handle")
-      .attr("height", this._buttonHeight);
+      const yTransform = this._height / 2 - this._buttonHeight / 2;
 
       brushSelection.attr("y", yTransform);
       brushHandle.attr("y", yTransform);
@@ -207,9 +204,9 @@ export default class Timeline extends Axis {
     }
 
     if (this._buttonBehaviorCurrent === "buttons") {
-      this._buttonWidth = 0.5 * (this._width / this._availableTicks.length - this._handleSize);
-      selection[0] -= this._buttonWidth;
-      selection[1] += this._buttonWidth;
+      const buttonWidth = 0.5 * (this._width / this._availableTicks.length - this._handleSize);
+      selection[0] -= buttonWidth;
+      selection[1] += buttonWidth;
     }
 
     return selection;
@@ -223,30 +220,32 @@ export default class Timeline extends Axis {
   */
   render(callback) {
     const {height, y} = this._position;
-    this._d3Scale = scaleTime().domain(this._domain.map(date)).range([0, this._width]);
+    let ticksWidth = 0;
 
-    const tickFormat = this._d3Scale.tickFormat();
-
-    // Measures size of ticks
-    const textData = this._d3Scale.ticks().map((d, i) => {
-      const f = this._shapeConfig.labelConfig.fontFamily(d, i),
-            s = this._shapeConfig.labelConfig.fontSize(d, i);
-
-      const wrap = textWrap()
-        .fontFamily(f)
-        .fontSize(s)
-        .lineHeight(this._shapeConfig.lineHeight ? this._shapeConfig.lineHeight(d, i) : undefined);
-
-      const res = wrap(tickFormat(d));
-      res.width = res.lines.length
-        ? Math.ceil(max(res.lines.map(line => textWidth(line, {"font-family": f, "font-size": s})))) + s / 4
-        : 0;
-      if (res.width % 2) res.width++;
-
-      return res;
-    });
-
-    const ticksWidth = textData.reduce((d, i) => d + i.width, 0);
+    if (this._buttonBehavior === "auto") {
+      const ticks = this._ticks ? this._ticks.map(date) : this._domain.map(date);
+      const d3Scale = scaleTime().domain(ticks).range([0, this._width]), 
+            tickFormat = d3Scale.tickFormat();
+  
+      // Measures size of ticks
+      ticksWidth = d3Scale.ticks().reduce((sum, d, i) => {
+        const f = this._shapeConfig.labelConfig.fontFamily(d, i),
+              s = this._shapeConfig.labelConfig.fontSize(d, i);
+  
+        const wrap = textWrap()
+          .fontFamily(f)
+          .fontSize(s)
+          .lineHeight(this._shapeConfig.lineHeight ? this._shapeConfig.lineHeight(d, i) : undefined);
+  
+        const res = wrap(tickFormat(d));
+        let width = res.lines.length
+          ? Math.ceil(max(res.lines.map(line => textWidth(line, {"font-family": f, "font-size": s})))) + s / 4
+          : 0;
+        if (width % 2) width++;
+  
+        return sum + width;
+      }, 0);
+    }
 
     this._buttonBehaviorCurrent = this._buttonBehavior === "auto" ? ticksWidth < this._width ? "buttons" : "ticks" : this._buttonBehavior;
 
