@@ -236,7 +236,7 @@ export default class Timeline extends Axis {
             tickFormat = d3Scale.tickFormat();
 
       // Measures size of ticks
-      ticksWidth = d3Scale.ticks(timeYear).reduce((sum, d, i) => {
+      ticksWidth = d3Scale.ticks().reduce((sum, d, i) => {
         const f = this._shapeConfig.labelConfig.fontFamily(d, i),
               s = this._shapeConfig.labelConfig.fontSize(d, i);
   
