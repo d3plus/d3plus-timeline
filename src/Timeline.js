@@ -51,7 +51,6 @@ export default class Timeline extends Axis {
     this._shape = "Rect";
     this._shapeConfig = Object.assign({}, this._shapeConfig, {
       labelBounds: d => this._buttonBehaviorCurrent === "buttons" ? {x: d.labelBounds.x, y: -5, width: d.labelBounds.width, height: this._buttonHeight} : d.labelBounds,
-      labelConfig: Object.assign({}, this._shapeConfig.labelConfig, {rotate: 0}),
       fill: () => this._buttonBehaviorCurrent === "buttons" ? "#EEE" : "#444",
       height: d => this._buttonBehaviorCurrent === "buttons" ? this._buttonHeight : d.tick ? 10 : 0,
       width: d => this._buttonBehaviorCurrent === "buttons" ? this._width / this._availableTicks.length : d.tick ? this._domain.map(t => date(t).getTime()).includes(d.id) ? 2 : 1 : 0,
@@ -231,12 +230,13 @@ export default class Timeline extends Axis {
     }
 
     if (this._buttonBehavior === "auto") {
-      const ticks = this._ticks ? this._ticks.map(date) : this._domain.map(date);
+      let ticks = this._ticks ? this._ticks.map(date) : this._domain.map(date);
       const d3Scale = scaleTime().domain(ticks).range([0, this._width]), 
             tickFormat = d3Scale.tickFormat();
 
+      ticks = this._ticks ? ticks : d3Scale.ticks();
       // Measures size of ticks
-      ticksWidth = d3Scale.ticks().reduce((sum, d, i) => {
+      ticksWidth = ticks.reduce((sum, d, i) => {
         const f = this._shapeConfig.labelConfig.fontFamily(d, i),
               s = this._shapeConfig.labelConfig.fontSize(d, i);
   
