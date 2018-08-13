@@ -250,7 +250,6 @@ export default class Timeline extends Axis {
           ? Math.ceil(max(res.lines.map(line => textWidth(line, {"font-family": f, "font-size": s})))) + s / 4
           : 0;
         if (width % 2) width++;
-        console.log(res)
         return sum + width + 2 * this._buttonPadding;
       }, 0);
     }
@@ -258,8 +257,6 @@ export default class Timeline extends Axis {
     this._buttonBehaviorCurrent = this._buttonBehavior === "auto" ? ticksWidth < this._width ? (this._width = ticksWidth, "buttons") : "ticks" : this._buttonBehavior;
 
     super.render(callback);
-    
-    console.log(this)
 
     const offset = this._outerBounds[y],
           range = this._d3Scale.range();
