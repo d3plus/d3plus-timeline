@@ -6,6 +6,8 @@ import {max} from "d3-array";
 import {brushX} from "d3-brush";
 import {scaleTime} from "d3-scale";
 import {event} from "d3-selection";
+import {timeYear} from "d3-time";
+
 import {Axis, date} from "d3plus-axis";
 import {attrize, closest, elem} from "d3plus-common";
 import {textWidth, textWrap} from "d3plus-text";
@@ -31,6 +33,7 @@ export default class Timeline extends Axis {
     this._brushFilter = () => !event.button && event.detail < 2;
     this._buttonBehavior = "auto";
     this._buttonHeight = 30;
+    this._buttonPadding = 10;
     this._domain = [2001, 2010];
     this._gridSize = 0;
     this._handleConfig = {
@@ -226,9 +229,9 @@ export default class Timeline extends Axis {
       const ticks = this._ticks ? this._ticks.map(date) : this._domain.map(date);
       const d3Scale = scaleTime().domain(ticks).range([0, this._width]), 
             tickFormat = d3Scale.tickFormat();
-  
+
       // Measures size of ticks
-      ticksWidth = d3Scale.ticks().reduce((sum, d, i) => {
+      ticksWidth = d3Scale.ticks(timeYear).reduce((sum, d, i) => {
         const f = this._shapeConfig.labelConfig.fontFamily(d, i),
               s = this._shapeConfig.labelConfig.fontSize(d, i);
   
@@ -243,11 +246,11 @@ export default class Timeline extends Axis {
           : 0;
         if (width % 2) width++;
   
-        return sum + width;
+        return sum + width + 2 * this._buttonPadding;
       }, 0);
     }
 
-    this._buttonBehaviorCurrent = this._buttonBehavior === "auto" ? ticksWidth < this._width ? "buttons" : "ticks" : this._buttonBehavior;
+    this._buttonBehaviorCurrent = this._buttonBehavior === "auto" ? ticksWidth < this._width ? (this._width = ticksWidth, "buttons") : "ticks" : this._buttonBehavior;
 
     super.render(callback);
 
