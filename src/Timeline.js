@@ -2,7 +2,7 @@
     @external Axis
     @see https://github.com/d3plus/d3plus-axis#Axis
 */
-import {max} from "d3-array";
+import {max, min} from "d3-array";
 import {brushX} from "d3-brush";
 import {scaleTime} from "d3-scale";
 import {event} from "d3-selection";
@@ -225,6 +225,11 @@ export default class Timeline extends Axis {
     const {height, y} = this._position;
     let ticksWidth = 0;
 
+    if (this._ticks) {
+      this._domain = [min(this._ticks), max(this._ticks)];
+      this.labels(this._ticks);
+    }
+
     if (this._buttonBehavior === "auto") {
       const ticks = this._ticks ? this._ticks.map(date) : this._domain.map(date);
       const d3Scale = scaleTime().domain(ticks).range([0, this._width]), 
@@ -245,7 +250,7 @@ export default class Timeline extends Axis {
           ? Math.ceil(max(res.lines.map(line => textWidth(line, {"font-family": f, "font-size": s})))) + s / 4
           : 0;
         if (width % 2) width++;
-  
+        console.log(res)
         return sum + width + 2 * this._buttonPadding;
       }, 0);
     }
@@ -253,6 +258,8 @@ export default class Timeline extends Axis {
     this._buttonBehaviorCurrent = this._buttonBehavior === "auto" ? ticksWidth < this._width ? (this._width = ticksWidth, "buttons") : "ticks" : this._buttonBehavior;
 
     super.render(callback);
+    
+    console.log(this)
 
     const offset = this._outerBounds[y],
           range = this._d3Scale.range();
