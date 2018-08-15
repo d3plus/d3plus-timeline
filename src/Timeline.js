@@ -225,7 +225,6 @@ export default class Timeline extends Axis {
 
     if (this._ticks && !this._labels) this.labels(this._ticks);
 
-
     if (this._buttonBehavior === "auto") {
       let ticks = this._ticks ? this._ticks.map(date) : this._domain.map(date);
       const d3Scale = scaleTime().domain(ticks).range([0, this._width]), 
