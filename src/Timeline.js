@@ -223,7 +223,7 @@ export default class Timeline extends Axis {
     const {height, y} = this._position;
     let ticksWidth = 0;
 
-    if (this._ticks) {
+    if (this._ticks && !this._labels) {
       this._domain = [min(this._ticks), max(this._ticks)];
       this.labels(this._ticks);
     }
@@ -323,6 +323,25 @@ function() {
     return arguments.length ? (this._buttonBehavior = _, this) : this._buttonBehavior;
   }
 
+  /**
+        @memberof Timeline
+        @desc If *value* is specified, sets the button height and returns the current class instance. If *value* is not specified, returns the current button height.
+        @param {Number} [*value* = 30]
+        @chainable
+    */
+  buttonHeight(_) {
+    return arguments.length ? (this._buttonHeight = _, this) : this._buttonHeight;
+  }
+
+  /**
+        @memberof Timeline
+        @desc If *value* is specified, sets the button padding and returns the current class instance. If *value* is not specified, returns the current button padding.
+        @param {Number} [*value* = 10]
+        @chainable
+    */
+  buttonPadding(_) {
+    return arguments.length ? (this._buttonPadding = _, this) : this._buttonPadding;
+  }
 
   /**
       @memberof Timeline
