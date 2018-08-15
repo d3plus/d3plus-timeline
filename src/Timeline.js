@@ -223,10 +223,8 @@ export default class Timeline extends Axis {
     const {height, y} = this._position;
     let ticksWidth = 0;
 
-    if (this._ticks && !this._labels) {
-      this._domain = [min(this._ticks), max(this._ticks)];
-      this.labels(this._ticks);
-    }
+    if (this._ticks && !this._labels) this.labels(this._ticks);
+
 
     if (this._buttonBehavior === "auto") {
       let ticks = this._ticks ? this._ticks.map(date) : this._domain.map(date);
