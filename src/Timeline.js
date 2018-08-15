@@ -6,7 +6,6 @@ import {max, min} from "d3-array";
 import {brushX} from "d3-brush";
 import {scaleTime} from "d3-scale";
 import {event} from "d3-selection";
-import {timeYear} from "d3-time";
 
 import {Axis, date} from "d3plus-axis";
 import {attrize, closest, elem} from "d3plus-common";
