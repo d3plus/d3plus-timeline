@@ -173,7 +173,7 @@ export default class Timeline extends Axis {
         ? typeof this._shapeConfig[height] === "function" ? this._shapeConfig[height]({tick: true}) : this._shapeConfig[height]
         : this._tickSize;
 
-    this._brushGroup.selectAll(".overlay")
+    const brushOverlay = this._brushGroup.selectAll(".overlay")
       .attr("cursor", this._brushing ? "crosshair" : "pointer");
 
     const brushSelection = this._brushGroup.selectAll(".selection")
@@ -187,8 +187,9 @@ export default class Timeline extends Axis {
     if (this._buttonBehaviorCurrent === "buttons") {
       const yTransform = this._height / 2 - this._buttonHeight / 2;
 
-      brushSelection.attr("y", yTransform);
       brushHandle.attr("y", yTransform);
+      brushOverlay.attr("x", 0).attr("width", this._width);
+      brushSelection.attr("y", yTransform);
     }
 
   }
@@ -221,12 +222,8 @@ export default class Timeline extends Axis {
   */
   render(callback) {
     const {height, y} = this._position;
+    const defaultWidth = this._width;
     let ticksWidth = 0;
-
-    if (this._ticks && !this._labels) {
-      this._domain = [min(this._ticks), max(this._ticks)];
-      this.labels(this._ticks);
-    }
 
     if (this._buttonBehavior === "auto") {
       let ticks = this._ticks ? this._ticks.map(date) : this._domain.map(date);
@@ -255,10 +252,17 @@ export default class Timeline extends Axis {
 
     this._buttonBehaviorCurrent = this._buttonBehavior === "auto" ? ticksWidth < this._width ? (this._width = ticksWidth, "buttons") : "ticks" : this._buttonBehavior;
 
-    super.render(callback);
+    if (this._ticks && !this._labels) {
+      if (this._buttonBehaviorCurrent === "ticks") this._domain = [min(this._ticks), max(this._ticks)];
+      this.labels(this._ticks);
+    }
 
+    super.render(callback);
+    this._margin.left = 400;
+    this._margin.right = 400;
     const offset = this._outerBounds[y],
           range = this._d3Scale.range();
+
 
     const brush = this._brush = brushX()
       .extent([[range[0], offset], [range[1], offset + this._outerBounds[height]]])
@@ -281,6 +285,13 @@ export default class Timeline extends Axis {
     this._brushGroup = elem("g.brushGroup", {parent: this._group});
     this._brushGroup.call(brush).transition(this._transition)
       .call(brush.move, selection);
+      
+    if (this._buttonBehaviorCurrent === "buttons") {
+      elem(`g#d3plus-Axis-${this._uuid}`).node().parentNode.setAttribute("width", defaultWidth);
+      const marginLeft = defaultWidth - this._width;
+      if (this._align === "middle") this._group.attr("transform", `translate(${marginLeft / 2}, 0)`);
+      else if (this._align === "end") this._group.attr("transform", `translate(${marginLeft}, 0)`);
+    }
 
     this._outerBounds.y -= this._handleSize / 2;
     this._outerBounds.height += this._handleSize / 2;
