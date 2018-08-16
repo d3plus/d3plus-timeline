@@ -287,8 +287,9 @@ export default class Timeline extends Axis {
       .call(brush.move, selection);
       
     if (this._buttonBehaviorCurrent === "buttons") {
-      elem(`g#d3plus-Axis-${this._uuid}`).node().parentNode.setAttribute("width", defaultWidth);
       const marginLeft = defaultWidth - this._width;
+      elem(`g#d3plus-Axis-${this._uuid}`).node().parentNode.setAttribute("width", defaultWidth);
+
       if (this._align === "middle") this._group.attr("transform", `translate(${marginLeft / 2}, 0)`);
       else if (this._align === "end") this._group.attr("transform", `translate(${marginLeft}, 0)`);
     }
