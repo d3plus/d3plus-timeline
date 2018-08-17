@@ -52,7 +52,7 @@ export default class Timeline extends Axis {
       labelBounds: d => this._buttonBehaviorCurrent === "buttons" ? {x: d.labelBounds.x, y: -5, width: d.labelBounds.width, height: this._buttonHeight} : d.labelBounds,
       fill: () => this._buttonBehaviorCurrent === "buttons" ? "#EEE" : "#444",
       height: d => this._buttonBehaviorCurrent === "buttons" ? this._buttonHeight : d.tick ? 10 : 0,
-      width: d => this._buttonBehaviorCurrent === "buttons" ? this._width / this._availableTicks.length : d.tick ? this._domain.map(t => date(t).getTime()).includes(d.id) ? 2 : 1 : 0,
+      width: d => this._buttonBehaviorCurrent === "buttons" ? this._ticksWidth / this._availableTicks.length : d.tick ? this._domain.map(t => date(t).getTime()).includes(d.id) ? 2 : 1 : 0,
       y: d => this._buttonBehaviorCurrent === "buttons" ? this._height / 2 : d.y
     });
     this._snapping = true;
@@ -188,7 +188,7 @@ export default class Timeline extends Axis {
       const yTransform = this._height / 2 - this._buttonHeight / 2;
 
       brushHandle.attr("y", yTransform);
-      brushOverlay.attr("x", 0).attr("width", this._width);
+      brushOverlay.attr("x", 0).attr("width", this._ticksWidth);
       brushSelection.attr("y", yTransform);
     }
 
@@ -206,7 +206,7 @@ export default class Timeline extends Axis {
     }
 
     if (this._buttonBehaviorCurrent === "buttons") {
-      const buttonWidth = 0.5 * (this._width / this._availableTicks.length - this._handleSize);
+      const buttonWidth = 0.5 * (this._ticksWidth / this._availableTicks.length - this._handleSize);
       selection[0] -= buttonWidth;
       selection[1] += buttonWidth;
     }
@@ -232,7 +232,7 @@ export default class Timeline extends Axis {
 
       ticks = this._ticks ? ticks : d3Scale.ticks();
       // Measures size of ticks
-      ticksWidth = ticks.reduce((sum, d, i) => {
+      this._ticksWidth = ticks.reduce((sum, d, i) => {
         const f = this._shapeConfig.labelConfig.fontFamily(d, i),
               s = this._shapeConfig.labelConfig.fontSize(d, i);
   
@@ -250,18 +250,20 @@ export default class Timeline extends Axis {
       }, 0);
     }
 
-    this._buttonBehaviorCurrent = this._buttonBehavior === "auto" ? ticksWidth < this._width ? (this._width = ticksWidth, "buttons") : "ticks" : this._buttonBehavior;
+    this._buttonBehaviorCurrent = this._buttonBehavior === "auto" ? this._ticksWidth < this._width ? "buttons" : "ticks" : this._buttonBehavior;
 
     if (this._ticks && !this._labels) {
       if (this._buttonBehaviorCurrent === "ticks") this._domain = [min(this._ticks), max(this._ticks)];
       this.labels(this._ticks);
     }
-
+    if (this._ticksWidth && this._buttonBehaviorCurrent === "buttons") {
+      this._range = [undefined, this._ticksWidth - 2 * this._buttonPadding]; 
+    }
+    
     super.render(callback);
-
+    
     const offset = this._outerBounds[y],
           range = this._d3Scale.range();
-
 
     const brush = this._brush = brushX()
       .extent([[range[0], offset], [range[1], offset + this._outerBounds[height]]])
@@ -284,14 +286,6 @@ export default class Timeline extends Axis {
     this._brushGroup = elem("g.brushGroup", {parent: this._group});
     this._brushGroup.call(brush).transition(this._transition)
       .call(brush.move, selection);
-      
-    if (this._buttonBehaviorCurrent === "buttons") {
-      const marginLeft = defaultWidth - this._width;
-      elem(`g#d3plus-Axis-${this._uuid}`).node().parentNode.setAttribute("width", defaultWidth);
-
-      if (this._align === "middle") this._group.attr("transform", `translate(${marginLeft / 2}, 0)`);
-      else if (this._align === "end") this._group.attr("transform", `translate(${marginLeft}, 0)`);
-    }
 
     this._outerBounds.y -= this._handleSize / 2;
     this._outerBounds.height += this._handleSize / 2;
