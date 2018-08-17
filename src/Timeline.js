@@ -258,8 +258,7 @@ export default class Timeline extends Axis {
     }
 
     super.render(callback);
-    this._margin.left = 400;
-    this._margin.right = 400;
+
     const offset = this._outerBounds[y],
           range = this._d3Scale.range();
 
