@@ -222,8 +222,6 @@ export default class Timeline extends Axis {
   */
   render(callback) {
     const {height, y} = this._position;
-    const defaultWidth = this._width;
-    let ticksWidth = 0;
 
     if (this._buttonBehavior === "auto") {
       let ticks = this._ticks ? this._ticks.map(date) : this._domain.map(date);
