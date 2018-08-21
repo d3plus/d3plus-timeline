@@ -32,7 +32,7 @@ export default class Timeline extends Axis {
     this._brushFilter = () => !event.button && event.detail < 2;
     this._buttonBehavior = "auto";
     this._buttonHeight = 30;
-    this._buttonPadding = 10;
+    this._buttonPadding = 12;
     this._domain = [2001, 2010];
     this._gridSize = 0;
     this._handleConfig = {
@@ -75,6 +75,7 @@ export default class Timeline extends Axis {
         .map(Number);
 
       const ticks = this._availableTicks.map(Number);
+
       domain[0] = date(closest(domain[0], ticks));
       domain[1] = date(closest(domain[1], ticks));
 
@@ -188,7 +189,7 @@ export default class Timeline extends Axis {
       const yTransform = this._height / 2 - this._buttonHeight / 2;
 
       brushHandle.attr("y", yTransform);
-      brushOverlay.attr("x", 0).attr("width", this._ticksWidth);
+      brushOverlay.attr("x", this._marginLeft).attr("width", this._ticksWidth);
       brushSelection.attr("y", yTransform);
     }
 
@@ -234,12 +235,14 @@ export default class Timeline extends Axis {
         const f = this._shapeConfig.labelConfig.fontFamily(d, i),
               s = this._shapeConfig.labelConfig.fontSize(d, i);
   
+              
         const wrap = textWrap()
           .fontFamily(f)
           .fontSize(s)
           .lineHeight(this._shapeConfig.lineHeight ? this._shapeConfig.lineHeight(d, i) : undefined);
   
         const res = wrap(tickFormat(d));
+
         let width = res.lines.length
           ? Math.ceil(max(res.lines.map(line => textWidth(line, {"font-family": f, "font-size": s})))) + s / 4
           : 0;
@@ -255,11 +258,25 @@ export default class Timeline extends Axis {
       this.labels(this._ticks);
     }
     if (this._ticksWidth && this._buttonBehaviorCurrent === "buttons") {
-      this._range = [undefined, this._ticksWidth - 2 * this._buttonPadding]; 
+      let ticks = this._ticks ? this._ticks.map(date) : this._domain.map(date);
+      const d3Scale = scaleTime().domain(ticks).range([0, this._ticksWidth]);
+
+      ticks = this._ticks ? ticks : d3Scale.ticks();
+
+      const buttonMargin = 0.5 * this._ticksWidth / ticks.length;
+      this._marginLeft = this._align === "start" 
+        ? undefined : this._align === "middle" 
+          ? (this._width - this._ticksWidth) / 2 : this._width - this._ticksWidth;
+
+      const marginRight = this._align === "end"
+        ? undefined : this._align === "middle"
+          ? (this._width + this._ticksWidth) / 2 - buttonMargin : this._ticksWidth - buttonMargin;
+
+      this._range = [this._align === "start" ? undefined : this._marginLeft + buttonMargin, marginRight]; 
     }
     
     super.render(callback);
-    
+
     const offset = this._outerBounds[y],
           range = this._d3Scale.range();
 
