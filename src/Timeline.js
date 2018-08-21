@@ -257,20 +257,21 @@ export default class Timeline extends Axis {
       if (this._buttonBehaviorCurrent === "ticks") this._domain = [min(this._ticks), max(this._ticks)];
       this.labels(this._ticks);
     }
+
     if (this._ticksWidth && this._buttonBehaviorCurrent === "buttons") {
       let ticks = this._ticks ? this._ticks.map(date) : this._domain.map(date);
       const d3Scale = scaleTime().domain(ticks).range([0, this._ticksWidth]);
-
       ticks = this._ticks ? ticks : d3Scale.ticks();
 
       const buttonMargin = 0.5 * this._ticksWidth / ticks.length;
-      this._marginLeft = this._align === "start" 
-        ? undefined : this._align === "middle" 
-          ? (this._width - this._ticksWidth) / 2 : this._width - this._ticksWidth;
 
-      const marginRight = this._align === "end"
-        ? undefined : this._align === "middle"
-          ? (this._width + this._ticksWidth) / 2 - buttonMargin : this._ticksWidth - buttonMargin;
+      this._marginLeft = this._align === "middle" 
+        ? (this._width - this._ticksWidth) / 2 : this._align === "end" 
+          ? this._width - this._ticksWidth : 0;
+
+      const marginRight = this._align === "middle"
+        ? (this._width + this._ticksWidth) / 2 - buttonMargin : this._align === "start" 
+          ? this._ticksWidth - buttonMargin : undefined;
 
       this._range = [this._align === "start" ? undefined : this._marginLeft + buttonMargin, marginRight]; 
     }
