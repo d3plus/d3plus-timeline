@@ -69,10 +69,10 @@ export default class Timeline extends Axis {
 
     if (event.sourceEvent && event.sourceEvent.offsetX && event.selection !== null && (!this._brushing || this._snapping)) {
 
-      const margin = 0.5 * (this._ticksWidth / this._availableTicks.length - 2 * this._handleSize - 0.2),
+      const buttonDomain = 0.5 * (this._ticksWidth / this._availableTicks.length - 2 * this._handleSize - 0.2),
             selection =  this._buttonBehaviorCurrent === "ticks" || event.selection[1] === event.selection[0]
-              ? event.selection : [event.selection[0] + margin, event.selection[1] - margin].sort((a, b) => a - b);
-      
+              ? event.selection : [event.selection[0] + buttonDomain, event.selection[1] - buttonDomain].sort((a, b) => a - b);
+
       const domain = (this._brushing ? selection
         : [event.selection[0], event.selection[0]])
         .map(this._d3Scale.invert)
