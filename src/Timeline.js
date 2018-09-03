@@ -74,7 +74,8 @@ export default class Timeline extends Axis {
               ? event.selection : [event.selection[0] + buttonDomain, event.selection[1] - buttonDomain].sort((a, b) => a - b);
 
       const domain = (this._brushing ? selection
-        : [event.selection[0], event.selection[0]])
+        : this._buttonBehaviorCurrent === "buttons" 
+          ? [event.sourceEvent.offsetX, event.sourceEvent.offsetX] : [event.selection[0], event.selection[0]])
         .map(this._d3Scale.invert)
         .map(Number);
 
@@ -228,7 +229,7 @@ export default class Timeline extends Axis {
   render(callback) {
     const {height, y} = this._position;
 
-    if (this._buttonBehavior === "auto") {
+    if (this._buttonBehavior !== "ticks") {
       let ticks = this._ticks ? this._ticks.map(date) : this._domain.map(date);
       const d3Scale = scaleTime().domain(ticks).range([0, this._width]), 
             tickFormat = d3Scale.tickFormat();
@@ -279,7 +280,11 @@ export default class Timeline extends Axis {
 
       this._range = [this._align === "start" ? undefined : this._marginLeft + buttonMargin, marginRight]; 
     }
-    
+
+    if (this._buttonBehaviorCurrent === "buttons" && !this._brushing) {
+      this._handleSize = 0;
+    }
+
     super.render(callback);
 
     const offset = this._outerBounds[y],
