@@ -8,7 +8,7 @@ import {scaleTime} from "d3-scale";
 import {event} from "d3-selection";
 
 import {Axis, date} from "d3plus-axis";
-import {attrize, closest, elem} from "d3plus-common";
+import {accessor, attrize, closest, constant, elem} from "d3plus-common";
 import {textWidth, textWrap} from "d3plus-text";
 
 /**
@@ -25,6 +25,7 @@ export default class Timeline extends Axis {
   constructor() {
 
     super();
+    this._align = () => this._buttonBehaviorCurrent === "buttons" ? "middle" : "start";
     this._barConfig = Object.assign({}, this._barConfig, {
       "stroke-width": () => this._buttonBehaviorCurrent === "buttons" ? 0 : 1
     });
@@ -264,26 +265,27 @@ export default class Timeline extends Axis {
       this.labels(this._ticks);
     }
 
+    if (this._buttonBehaviorCurrent === "buttons") {
+      if (!this._brushing) this._handleSize = 0;
+    }
+
     if (this._ticksWidth && this._buttonBehaviorCurrent === "buttons") {
       let ticks = this._ticks ? this._ticks.map(date) : this._domain.map(date);
       const d3Scale = scaleTime().domain(ticks).range([0, this._ticksWidth]);
       ticks = this._ticks ? ticks : d3Scale.ticks();
 
-      const buttonMargin = 0.5 * this._ticksWidth / ticks.length;
+      const align = typeof this._align === "function" ? this._align() : this._align,
+            buttonMargin = 0.5 * this._ticksWidth / ticks.length;
 
-      this._marginLeft = this._align === "middle" 
-        ? (this._width - this._ticksWidth) / 2 : this._align === "end" 
+      this._marginLeft = align === "middle" 
+        ? (this._width - this._ticksWidth) / 2 : align === "end" 
           ? this._width - this._ticksWidth : 0;
 
-      const marginRight = this._align === "middle"
-        ? (this._width + this._ticksWidth) / 2 - buttonMargin : this._align === "start" 
+      const marginRight = align === "middle"
+        ? (this._width + this._ticksWidth) / 2 - buttonMargin : align === "start" 
           ? this._ticksWidth - buttonMargin : undefined;
 
-      this._range = [this._align === "start" ? undefined : this._marginLeft + buttonMargin, marginRight]; 
-    }
-
-    if (this._buttonBehaviorCurrent === "buttons" && !this._brushing) {
-      this._handleSize = 0;
+      this._range = [align === "start" ? undefined : this._marginLeft + buttonMargin, marginRight]; 
     }
 
     super.render(callback);
@@ -319,6 +321,10 @@ export default class Timeline extends Axis {
     return this;
 
   }
+
+  /*align(_) {
+    return arguments.length ? (this._align = typeof _ === "function" ? _ : accessor(_), this) : this._align;
+  }*/
 
   /**
       @memberof Timeline
