@@ -78,22 +78,28 @@ export default class Timeline extends Axis {
       const domain = (this._brushing ? selection
         : this._buttonBehaviorCurrent === "buttons" 
           ? [event.sourceEvent.offsetX, event.sourceEvent.offsetX] : [event.selection[0], event.selection[0]])
-        .map(this._d3Scale.invert)
+        //.map(this._d3Scale.invert)
         .map(Number);
 
-      const ticks = this._availableTicks.map(Number);
-
-      domain[0] = date(closest(domain[0], ticks));
-      domain[1] = date(closest(domain[1], ticks));
+      //const ticks = this._availableTicks.map(Number);
+      const ticks = this._availableTicks.map((d, i) => this._marginLeft + (i + 0.5) * this._ticksWidth / this._availableTicks.length)
+      //domain[0] = date(closest(domain[0], ticks));
+      //domain[1] = date(closest(domain[1], ticks));
+      domain[0] = closest(domain[0], ticks);
+      domain[1] = closest(domain[1], ticks);
 
       const single = +domain[0] === +domain[1];
 
       this._selection = single ? domain[0] : domain;
 
-      const pixelDomain = domain.map(this._d3Scale);
-      this._updateBrushLimit(pixelDomain);
-
-      this._brushGroup.call(this._brush.move, pixelDomain);
+      //const pixelDomain = domain.map(this._d3Scale);
+      const pixelDomain = domain;
+      console.log("brush")
+      console.log(domain)
+      console.log(pixelDomain)
+      //this._updateBrushLimit(pixelDomain);
+      console.log(pixelDomain)
+      this._brushGroup.call(this._brush.move, pixelDomain.sort((a, b) => a - b));
 
     }
 
@@ -113,18 +119,23 @@ export default class Timeline extends Axis {
 
     const domain = (event.selection && this._brushing ? event.selection
       : [event.sourceEvent.offsetX, event.sourceEvent.offsetX])
-      .map(this._d3Scale.invert)
+      //.map(this._d3Scale.invert)
       .map(Number);
 
-    const ticks = this._availableTicks.map(Number);
-    domain[0] = date(closest(domain[0], ticks));
-    domain[1] = date(closest(domain[1], ticks));
-      
+    //const ticks = this._availableTicks.map(Number);
+    const ticks = this._availableTicks.map((d, i) => this._marginLeft + (i + 0.5) * this._ticksWidth / this._availableTicks.length)
+    //domain[0] = date(closest(domain[0], ticks));
+    //domain[1] = date(closest(domain[1], ticks));
+    domain[0] = closest(domain[0], ticks);
+    domain[1] = closest(domain[1], ticks);
     const single = +domain[0] === +domain[1];
 
     if (this._brushing || !this._snapping) {
 
-      const pixelDomain = domain.map(this._d3Scale);
+      const pixelDomain = domain;
+      console.log("end")
+      console.log(domain)
+      console.log(pixelDomain)
       this._updateBrushLimit(pixelDomain);
 
       this._brushGroup.transition(this._transition).call(this._brush.move, pixelDomain);
@@ -148,14 +159,22 @@ export default class Timeline extends Axis {
 
       const domain = (event.selection && this._brushing ? event.selection
         : [event.sourceEvent.offsetX, event.sourceEvent.offsetX])
-        .map(this._d3Scale.invert)
+        //.map(this._d3Scale.invert)
         .map(Number);
 
-      const ticks = this._availableTicks.map(Number);
-      domain[0] = date(closest(domain[0], ticks));
-      domain[1] = date(closest(domain[1], ticks));
+      //const ticks = this._availableTicks.map(Number);
+      const ticks = this._availableTicks.map((d, i) => this._marginLeft + (i + 0.5) * this._ticksWidth / this._availableTicks.length)
+      //domain[0] = date(closest(domain[0], ticks));
+      //domain[1] = date(closest(domain[1], ticks));
 
-      const pixelDomain = domain.map(this._d3Scale);
+      domain[0] = closest(domain[0], ticks);
+      domain[1] = closest(domain[1], ticks);
+        console.log(ticks)
+      //const pixelDomain = domain.map(this._d3Scale);
+      const pixelDomain = domain;
+      console.log("start")
+      console.log(domain)
+      console.log(pixelDomain)
       this._updateBrushLimit(pixelDomain);
 
       this._brushGroup.call(this._brush.move, pixelDomain);
@@ -287,7 +306,8 @@ export default class Timeline extends Axis {
 
       this._range = [align === "start" ? undefined : this._marginLeft + buttonMargin, marginRight]; 
     }
-
+    this._scale = "ordinal";
+    this._domain = this._ticks;
     super.render(callback);
 
     const offset = this._outerBounds[y],
@@ -321,10 +341,6 @@ export default class Timeline extends Axis {
     return this;
 
   }
-
-  /*align(_) {
-    return arguments.length ? (this._align = typeof _ === "function" ? _ : accessor(_), this) : this._align;
-  }*/
 
   /**
       @memberof Timeline
