@@ -75,31 +75,34 @@ export default class Timeline extends Axis {
               ? event.selection 
               : [event.selection[0] + buttonDomain, event.selection[1] - buttonDomain].sort((a, b) => a - b);
 
-      const domain = (this._brushing ? selection
+      const domain = (this._brushing 
+        ? selection
         : this._buttonBehaviorCurrent === "buttons" 
           ? [event.sourceEvent.offsetX, event.sourceEvent.offsetX] : [event.selection[0], event.selection[0]])
-        //.map(this._d3Scale.invert)
         .map(Number);
+      
+      if (this._buttonBehaviorCurrent === "ticks") domain.map(this._d3Scale.invert);
 
-      //const ticks = this._availableTicks.map(Number);
-      const ticks = this._availableTicks.map((d, i) => this._marginLeft + (i + 0.5) * this._ticksWidth / this._availableTicks.length)
-      //domain[0] = date(closest(domain[0], ticks));
-      //domain[1] = date(closest(domain[1], ticks));
-      domain[0] = closest(domain[0], ticks);
-      domain[1] = closest(domain[1], ticks);
+      const ticks = this._buttonBehaviorCurrent === "ticks"
+        ? this._availableTicks.map(Number) 
+        : this._availableTicks.map((d, i) => this._marginLeft + (i + 0.5) * this._ticksWidth / this._availableTicks.length);
+
+      if (this._buttonBehaviorCurrent === "ticks") {
+        domain[0] = date(closest(domain[0], ticks));
+        domain[1] = date(closest(domain[1], ticks));
+      } 
+      else {
+        domain[0] = closest(domain[0], ticks);
+        domain[1] = closest(domain[1], ticks);
+      }
 
       const single = +domain[0] === +domain[1];
-
       this._selection = single ? domain[0] : domain;
 
-      //const pixelDomain = domain.map(this._d3Scale);
-      const pixelDomain = domain;
-      console.log("brush")
-      console.log(domain)
-      console.log(pixelDomain)
-      //this._updateBrushLimit(pixelDomain);
-      console.log(pixelDomain)
-      this._brushGroup.call(this._brush.move, pixelDomain.sort((a, b) => a - b));
+      const pixelDomain = this._buttonBehaviorCurrent === "ticks" ? domain.map(this._d3Scale) : domain;
+      this._updateBrushLimit(pixelDomain);
+      
+      this._brushGroup.call(this._brush.move, pixelDomain);
 
     }
 
@@ -119,23 +122,28 @@ export default class Timeline extends Axis {
 
     const domain = (event.selection && this._brushing ? event.selection
       : [event.sourceEvent.offsetX, event.sourceEvent.offsetX])
-      //.map(this._d3Scale.invert)
       .map(Number);
 
-    //const ticks = this._availableTicks.map(Number);
-    const ticks = this._availableTicks.map((d, i) => this._marginLeft + (i + 0.5) * this._ticksWidth / this._availableTicks.length)
-    //domain[0] = date(closest(domain[0], ticks));
-    //domain[1] = date(closest(domain[1], ticks));
-    domain[0] = closest(domain[0], ticks);
-    domain[1] = closest(domain[1], ticks);
+    if (this._buttonBehaviorCurrent === "ticks") domain.map(this._d3Scale.invert);
+
+    const ticks = this._buttonBehaviorCurrent === "ticks"
+      ? this._availableTicks.map(Number) 
+      : this._availableTicks.map((d, i) => this._marginLeft + (i + 0.5) * this._ticksWidth / this._availableTicks.length);
+
+    if (this._buttonBehaviorCurrent === "ticks") {
+      domain[0] = date(closest(domain[0], ticks));
+      domain[1] = date(closest(domain[1], ticks));
+    } 
+    else {
+      domain[0] = closest(domain[0], ticks);
+      domain[1] = closest(domain[1], ticks);
+    }
+
     const single = +domain[0] === +domain[1];
 
     if (this._brushing || !this._snapping) {
 
-      const pixelDomain = domain;
-      console.log("end")
-      console.log(domain)
-      console.log(pixelDomain)
+      const pixelDomain = this._buttonBehaviorCurrent === "ticks" ? domain.map(this._d3Scale) : domain;
       this._updateBrushLimit(pixelDomain);
 
       this._brushGroup.transition(this._transition).call(this._brush.move, pixelDomain);
@@ -156,25 +164,26 @@ export default class Timeline extends Axis {
   _brushStart() {
 
     if (event.sourceEvent !== null && (!this._brushing || this._snapping)) {
-
       const domain = (event.selection && this._brushing ? event.selection
         : [event.sourceEvent.offsetX, event.sourceEvent.offsetX])
-        //.map(this._d3Scale.invert)
         .map(Number);
 
-      //const ticks = this._availableTicks.map(Number);
-      const ticks = this._availableTicks.map((d, i) => this._marginLeft + (i + 0.5) * this._ticksWidth / this._availableTicks.length)
-      //domain[0] = date(closest(domain[0], ticks));
-      //domain[1] = date(closest(domain[1], ticks));
+      if (this._buttonBehaviorCurrent === "ticks") domain.map(this._d3Scale.invert);
 
-      domain[0] = closest(domain[0], ticks);
-      domain[1] = closest(domain[1], ticks);
-        console.log(ticks)
-      //const pixelDomain = domain.map(this._d3Scale);
-      const pixelDomain = domain;
-      console.log("start")
-      console.log(domain)
-      console.log(pixelDomain)
+      const ticks = this._buttonBehaviorCurrent === "ticks"
+        ? this._availableTicks.map(Number) 
+        : this._availableTicks.map((d, i) => this._marginLeft + (i + 0.5) * this._ticksWidth / this._availableTicks.length);
+
+      if (this._buttonBehaviorCurrent === "ticks") {
+        domain[0] = date(closest(domain[0], ticks));
+        domain[1] = date(closest(domain[1], ticks));
+      } 
+      else {
+        domain[0] = closest(domain[0], ticks);
+        domain[1] = closest(domain[1], ticks);
+      }
+
+      const pixelDomain = this._buttonBehaviorCurrent === "ticks" ? domain.map(this._d3Scale) : domain;
       this._updateBrushLimit(pixelDomain);
 
       this._brushGroup.call(this._brush.move, pixelDomain);
@@ -306,28 +315,38 @@ export default class Timeline extends Axis {
 
       this._range = [align === "start" ? undefined : this._marginLeft + buttonMargin, marginRight]; 
     }
-    this._scale = "ordinal";
-    this._domain = this._ticks;
+    
+    if (this._buttonBehaviorCurrent === "buttons") {
+      this._scale = "ordinal";
+      this._domain = this._ticks;
+    }
     super.render(callback);
 
     const offset = this._outerBounds[y],
           range = this._d3Scale.range();
-
+    console.log(this._domain)
+    console.log(range)
+    console.log(offset)
     const brush = this._brush = brushX()
-      .extent([[range[0], offset], [range[1], offset + this._outerBounds[height]]])
+      .extent([[range[0], offset], [range[range.length - 1], offset + this._outerBounds[height]]])
       .filter(this._brushFilter)
       .handleSize(this._handleSize)
       .on("start", this._brushStart.bind(this))
       .on("brush", this._brushBrush.bind(this))
       .on("end", this._brushEnd.bind(this));
 
-    const latest = this._availableTicks[this._availableTicks.length - 1];
-    const selection = (this._selection === void 0 ? [latest, latest]
+    const latest = this._buttonBehaviorCurrent === "ticks"
+      ? this._availableTicks[this._availableTicks.length - 1]
+      : this._marginLeft + (range.length - 0.5) * this._ticksWidth / this._availableTicks.length;
+
+    const selection = this._selection === void 0 ? [latest, latest]
       : this._selection instanceof Array
         ? this._selection.slice()
-        : [this._selection, this._selection])
-      .map(date)
-      .map(this._d3Scale);
+        : [this._selection, this._selection];
+      
+    if (this._buttonBehaviorCurrent === "ticks") {
+      selection.map(date).map(this._d3Scale);
+    }
 
     this._updateBrushLimit(selection);
 
