@@ -8,7 +8,7 @@ import {scaleTime} from "d3-scale";
 import {event} from "d3-selection";
 
 import {Axis, date} from "d3plus-axis";
-import {accessor, attrize, closest, constant, elem} from "d3plus-common";
+import {attrize, closest, elem} from "d3plus-common";
 import {textWidth, textWrap} from "d3plus-text";
 
 /**
@@ -75,17 +75,17 @@ export default class Timeline extends Axis {
               ? event.selection 
               : [event.selection[0] + buttonDomain, event.selection[1] - buttonDomain].sort((a, b) => a - b);
 
-      const domain = (this._brushing 
-        ? selection
-        : this._buttonBehaviorCurrent === "buttons" 
-          ? [event.sourceEvent.offsetX, event.sourceEvent.offsetX] : [event.selection[0], event.selection[0]])
-        .map(Number);
-      
-      if (this._buttonBehaviorCurrent === "ticks") domain.map(this._d3Scale.invert);
+      const domain = this._buttonBehaviorCurrent === "ticks"
+        ? (this._brushing 
+          ? event.selection 
+          : [event.sourceEvent.offsetX, event.sourceEvent.offsetX]).map(this._d3Scale.invert).map(Number) 
+        : (this._brushing 
+          ? selection
+          : [event.sourceEvent.offsetX, event.sourceEvent.offsetX]).map(Number);
 
       const ticks = this._buttonBehaviorCurrent === "ticks"
         ? this._availableTicks.map(Number) 
-        : this._availableTicks.map((d, i) => this._marginLeft + (i + 0.5) * this._ticksWidth / this._availableTicks.length);
+        : this._d3Scale.range();
 
       if (this._buttonBehaviorCurrent === "ticks") {
         domain[0] = date(closest(domain[0], ticks));
@@ -97,7 +97,11 @@ export default class Timeline extends Axis {
       }
 
       const single = +domain[0] === +domain[1];
-      this._selection = single ? domain[0] : domain;
+      this._selection = this._buttonBehaviorCurrent === "ticks" 
+        ? single ? domain[0] : domain 
+        : single 
+          ? new Date(this._availableTicks[ticks.indexOf(domain[0])], 0, 1) 
+          : [new Date(this._availableTicks[ticks.indexOf(domain[0])], 0, 1), new Date(this._availableTicks[ticks.indexOf(domain[1])], 0, 1)];
 
       const pixelDomain = this._buttonBehaviorCurrent === "ticks" ? domain.map(this._d3Scale) : domain;
       this._updateBrushLimit(pixelDomain);
@@ -120,15 +124,17 @@ export default class Timeline extends Axis {
 
     if (!event.sourceEvent) return; // Only transition after input.
 
-    const domain = (event.selection && this._brushing ? event.selection
-      : [event.sourceEvent.offsetX, event.sourceEvent.offsetX])
-      .map(Number);
-
-    if (this._buttonBehaviorCurrent === "ticks") domain.map(this._d3Scale.invert);
+    const domain = this._buttonBehaviorCurrent === "ticks"
+      ? (event.selection && this._brushing 
+        ? event.selection 
+        : [event.sourceEvent.offsetX, event.sourceEvent.offsetX]).map(this._d3Scale.invert).map(Number) 
+      : (event.selection && this._brushing 
+        ? event.selection
+        : [event.sourceEvent.offsetX, event.sourceEvent.offsetX]).map(Number);
 
     const ticks = this._buttonBehaviorCurrent === "ticks"
       ? this._availableTicks.map(Number) 
-      : this._availableTicks.map((d, i) => this._marginLeft + (i + 0.5) * this._ticksWidth / this._availableTicks.length);
+      : this._d3Scale.range();
 
     if (this._buttonBehaviorCurrent === "ticks") {
       domain[0] = date(closest(domain[0], ticks));
@@ -151,7 +157,12 @@ export default class Timeline extends Axis {
     }
 
     this._brushStyle();
-    this._selection = single ? domain[0] : domain;
+    this._selection = this._buttonBehaviorCurrent === "ticks" 
+      ? single ? domain[0] : domain 
+      : single 
+        ? new Date(this._availableTicks[ticks.indexOf(domain[0])], 0, 1) 
+        : [new Date(this._availableTicks[ticks.indexOf(domain[0])], 0, 1), new Date(this._availableTicks[ticks.indexOf(domain[1])], 0, 1)];
+
     if (this._on.end) this._on.end(this._selection);
 
   }
@@ -164,15 +175,17 @@ export default class Timeline extends Axis {
   _brushStart() {
 
     if (event.sourceEvent !== null && (!this._brushing || this._snapping)) {
-      const domain = (event.selection && this._brushing ? event.selection
-        : [event.sourceEvent.offsetX, event.sourceEvent.offsetX])
-        .map(Number);
-
-      if (this._buttonBehaviorCurrent === "ticks") domain.map(this._d3Scale.invert);
+      const domain = this._buttonBehaviorCurrent === "ticks"
+        ? (event.selection && this._brushing 
+          ? event.selection 
+          : [event.sourceEvent.offsetX, event.sourceEvent.offsetX]).map(this._d3Scale.invert).map(Number) 
+        : (event.selection && this._brushing 
+          ? event.selection
+          : [event.sourceEvent.offsetX, event.sourceEvent.offsetX]).map(Number);
 
       const ticks = this._buttonBehaviorCurrent === "ticks"
         ? this._availableTicks.map(Number) 
-        : this._availableTicks.map((d, i) => this._marginLeft + (i + 0.5) * this._ticksWidth / this._availableTicks.length);
+        : this._d3Scale.range();
 
       if (this._buttonBehaviorCurrent === "ticks") {
         domain[0] = date(closest(domain[0], ticks));
@@ -269,8 +282,7 @@ export default class Timeline extends Axis {
       this._ticksWidth = ticks.reduce((sum, d, i) => {
         const f = this._shapeConfig.labelConfig.fontFamily(d, i),
               s = this._shapeConfig.labelConfig.fontSize(d, i);
-  
-              
+
         const wrap = textWrap()
           .fontFamily(f)
           .fontSize(s)
@@ -294,6 +306,7 @@ export default class Timeline extends Axis {
     }
 
     if (this._buttonBehaviorCurrent === "buttons") {
+      if (!this._ticks) this._ticks = Array.from(Array(this._domain[this._domain.length - 1] - this._domain[0] + 1), (_, x) => this._domain[0] + x);
       if (!this._brushing) this._handleSize = 0;
     }
 
@@ -324,9 +337,7 @@ export default class Timeline extends Axis {
 
     const offset = this._outerBounds[y],
           range = this._d3Scale.range();
-    console.log(this._domain)
-    console.log(range)
-    console.log(offset)
+
     const brush = this._brush = brushX()
       .extent([[range[0], offset], [range[range.length - 1], offset + this._outerBounds[height]]])
       .filter(this._brushFilter)
@@ -337,15 +348,15 @@ export default class Timeline extends Axis {
 
     const latest = this._buttonBehaviorCurrent === "ticks"
       ? this._availableTicks[this._availableTicks.length - 1]
-      : this._marginLeft + (range.length - 0.5) * this._ticksWidth / this._availableTicks.length;
+      : range[range.length - 1];
 
-    const selection = this._selection === void 0 ? [latest, latest]
+    let selection = this._selection === void 0 ? [latest, latest]
       : this._selection instanceof Array
         ? this._selection.slice()
         : [this._selection, this._selection];
       
     if (this._buttonBehaviorCurrent === "ticks") {
-      selection.map(date).map(this._d3Scale);
+      selection = selection.map(date).map(this._d3Scale);
     }
 
     this._updateBrushLimit(selection);
