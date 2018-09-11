@@ -25,7 +25,7 @@ export default class Timeline extends Axis {
   constructor() {
 
     super();
-    this._align = () => this._buttonBehaviorCurrent === "buttons" ? "middle" : "start";
+    this._align = "middle";
     this._barConfig = Object.assign({}, this._barConfig, {
       "stroke-width": () => this._buttonBehaviorCurrent === "buttons" ? 0 : 1
     });
@@ -315,18 +315,17 @@ export default class Timeline extends Axis {
       const d3Scale = scaleTime().domain(ticks).range([0, this._ticksWidth]);
       ticks = this._ticks ? ticks : d3Scale.ticks();
 
-      const align = typeof this._align === "function" ? this._align() : this._align,
-            buttonMargin = 0.5 * this._ticksWidth / ticks.length;
+      const buttonMargin = 0.5 * this._ticksWidth / ticks.length;
 
-      this._marginLeft = align === "middle" 
-        ? (this._width - this._ticksWidth) / 2 : align === "end" 
+      this._marginLeft = this._align === "middle" 
+        ? (this._width - this._ticksWidth) / 2 : this._align === "end" 
           ? this._width - this._ticksWidth : 0;
 
-      const marginRight = align === "middle"
-        ? (this._width + this._ticksWidth) / 2 - buttonMargin : align === "start" 
+      const marginRight = this._align === "middle"
+        ? (this._width + this._ticksWidth) / 2 - buttonMargin : this._align === "start" 
           ? this._ticksWidth - buttonMargin : undefined;
 
-      this._range = [align === "start" ? undefined : this._marginLeft + buttonMargin, marginRight]; 
+      this._range = [this._align === "start" ? undefined : this._marginLeft + buttonMargin, marginRight]; 
     }
     
     if (this._buttonBehaviorCurrent === "buttons") {
