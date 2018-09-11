@@ -100,8 +100,8 @@ export default class Timeline extends Axis {
       this._selection = this._buttonBehaviorCurrent === "ticks" 
         ? single ? domain[0] : domain 
         : single 
-          ? new Date(this._availableTicks[ticks.indexOf(domain[0])], 0, 1) 
-          : [new Date(this._availableTicks[ticks.indexOf(domain[0])], 0, 1), new Date(this._availableTicks[ticks.indexOf(domain[1])], 0, 1)];
+          ? date(this._availableTicks[ticks.indexOf(domain[0])]) 
+          : [date(this._availableTicks[ticks.indexOf(domain[0])]), date(this._availableTicks[ticks.indexOf(domain[1])])];
 
       const pixelDomain = this._buttonBehaviorCurrent === "ticks" ? domain.map(this._d3Scale) : domain;
       this._updateBrushLimit(pixelDomain);
@@ -160,8 +160,8 @@ export default class Timeline extends Axis {
     this._selection = this._buttonBehaviorCurrent === "ticks" 
       ? single ? domain[0] : domain 
       : single 
-        ? new Date(this._availableTicks[ticks.indexOf(domain[0])], 0, 1) 
-        : [new Date(this._availableTicks[ticks.indexOf(domain[0])], 0, 1), new Date(this._availableTicks[ticks.indexOf(domain[1])], 0, 1)];
+        ? date(this._availableTicks[ticks.indexOf(domain[0])]) 
+        : [date(this._availableTicks[ticks.indexOf(domain[0])]), date(this._availableTicks[ticks.indexOf(domain[1])])];
 
     if (this._on.end) this._on.end(this._selection);
 
