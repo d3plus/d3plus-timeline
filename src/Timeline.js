@@ -70,31 +70,7 @@ export default class Timeline extends Axis {
 
     if (event.sourceEvent && event.sourceEvent.offsetX && event.selection !== null && (!this._brushing || this._snapping)) {
 
-      const buttonDomain = 0.5 * (this._ticksWidth / this._availableTicks.length - this._handleSize + 0.2),
-            selection =  this._buttonBehaviorCurrent === "ticks" || event.selection[1] === event.selection[0] || buttonDomain === Math.round((event.selection[1] - event.selection[0]) * 10) / 10
-              ? event.selection 
-              : [event.selection[0] + buttonDomain, event.selection[1] - buttonDomain].sort((a, b) => a - b);
-
-      const domain = this._buttonBehaviorCurrent === "ticks"
-        ? (this._brushing 
-          ? event.selection 
-          : [event.sourceEvent.offsetX, event.sourceEvent.offsetX]).map(this._d3Scale.invert).map(Number) 
-        : (this._brushing 
-          ? selection
-          : [event.sourceEvent.offsetX, event.sourceEvent.offsetX]).map(Number);
-
-      const ticks = this._buttonBehaviorCurrent === "ticks"
-        ? this._availableTicks.map(Number) 
-        : this._d3Scale.range();
-
-      this._updateDomain(domain);
-
-      const single = +domain[0] === +domain[1];
-      this._selection = this._buttonBehaviorCurrent === "ticks" 
-        ? single ? domain[0] : domain 
-        : single 
-          ? date(this._availableTicks[ticks.indexOf(domain[0])]) 
-          : [date(this._availableTicks[ticks.indexOf(domain[0])]), date(this._availableTicks[ticks.indexOf(domain[1])])];
+      const domain = this._updateDomain();
 
       this._brushGroup.call(this._brush.move, this._updateBrushLimit(domain));
 
@@ -114,28 +90,9 @@ export default class Timeline extends Axis {
 
     if (!event.sourceEvent) return; // Only transition after input.
 
-    const domain = this._buttonBehaviorCurrent === "ticks"
-      ? (event.selection && this._brushing 
-        ? event.selection 
-        : [event.sourceEvent.offsetX, event.sourceEvent.offsetX]).map(this._d3Scale.invert).map(Number) 
-      : (event.selection && this._brushing 
-        ? event.selection
-        : [event.sourceEvent.offsetX, event.sourceEvent.offsetX]).map(Number);
-
-    const ticks = this._buttonBehaviorCurrent === "ticks"
-      ? this._availableTicks.map(Number) 
-      : this._d3Scale.range();
-
-    this._updateDomain(domain);
-
-    const single = +domain[0] === +domain[1];
+    const domain = this._updateDomain();
 
     this._brushStyle();
-    this._selection = this._buttonBehaviorCurrent === "ticks" 
-      ? single ? domain[0] : domain 
-      : single 
-        ? date(this._availableTicks[ticks.indexOf(domain[0])]) 
-        : [date(this._availableTicks[ticks.indexOf(domain[0])]), date(this._availableTicks[ticks.indexOf(domain[1])])];
 
     if (this._brushing || !this._snapping) this._brushGroup.transition(this._transition).call(this._brush.move, this._updateBrushLimit(domain));
 
@@ -151,15 +108,8 @@ export default class Timeline extends Axis {
   _brushStart() {
 
     if (event.sourceEvent !== null && (!this._brushing || this._snapping)) {
-      const domain = this._buttonBehaviorCurrent === "ticks"
-        ? (event.selection && this._brushing 
-          ? event.selection 
-          : [event.sourceEvent.offsetX, event.sourceEvent.offsetX]).map(this._d3Scale.invert).map(Number) 
-        : (event.selection && this._brushing 
-          ? event.selection
-          : [event.sourceEvent.offsetX, event.sourceEvent.offsetX]).map(Number);
 
-      this._updateDomain(domain);
+      const domain = this._updateDomain();
       this._brushGroup.call(this._brush.move, this._updateBrushLimit(domain));
 
     }
@@ -209,7 +159,20 @@ export default class Timeline extends Axis {
       @desc Updates domain of the timeline used in brush functions.
       @private
   */
-  _updateDomain(domain) {
+  _updateDomain() {
+
+    let domain = this._buttonBehaviorCurrent === "ticks"
+      ? (event.selection && this._brushing 
+        ? event.selection 
+        : [event.sourceEvent.offsetX, event.sourceEvent.offsetX]).map(this._d3Scale.invert).map(Number) 
+      : (event.selection && this._brushing 
+        ? event.selection
+        : [event.sourceEvent.offsetX, event.sourceEvent.offsetX]).map(Number);
+    
+    if (event.type === "brush" && this._brushing && this._buttonBehaviorCurrent === "buttons") {
+      const buttonDomain = 0.5 * (this._ticksWidth / this._availableTicks.length - this._handleSize + 0.2);
+      domain = [event.selection[0] + buttonDomain, event.selection[1] - buttonDomain].sort((a, b) => a - b);
+    }
 
     const ticks = this._buttonBehaviorCurrent === "ticks"
       ? this._availableTicks.map(Number) 
@@ -223,6 +186,17 @@ export default class Timeline extends Axis {
       domain[0] = closest(domain[0], ticks);
       domain[1] = closest(domain[1], ticks);
     }
+
+    const single = +domain[0] === +domain[1];
+
+    if (event.type === "brush" || event.type === "end") {
+      this._selection = this._buttonBehaviorCurrent === "ticks" 
+        ? single ? domain[0] : domain 
+        : single 
+          ? date(this._availableTicks[ticks.indexOf(domain[0])]) 
+          : [date(this._availableTicks[ticks.indexOf(domain[0])]), date(this._availableTicks[ticks.indexOf(domain[1])])];
+    }
+
     return domain;
 
   }
@@ -233,7 +207,7 @@ export default class Timeline extends Axis {
       @private
   */
   _updateBrushLimit(domain) {
-
+    
     const selection = this._buttonBehaviorCurrent === "ticks" ? domain.map(date).map(this._d3Scale) : domain;
 
     if (selection[0] === selection[1]) {
