@@ -25,7 +25,7 @@ export default class Timeline extends Axis {
   constructor() {
 
     super();
-    this._align = "middle";
+
     this._barConfig = Object.assign({}, this._barConfig, {
       "stroke-width": () => this._buttonBehaviorCurrent === "buttons" ? 0 : 1
     });
