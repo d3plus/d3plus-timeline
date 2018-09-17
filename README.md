@@ -176,4 +176,4 @@ This is a static method of [<code>Timeline</code>](#Timeline), and is chainable 
 
 
 
-###### <sub>Documentation generated on Mon, 17 Sep 2018 17:11:42 GMT</sub>
+###### <sub>Documentation generated on Mon, 17 Sep 2018 17:12:41 GMT</sub>
