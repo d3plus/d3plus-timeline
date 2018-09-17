@@ -170,8 +170,12 @@ export default class Timeline extends Axis {
         : [event.sourceEvent.offsetX, event.sourceEvent.offsetX]).map(Number);
     
     if (event.type === "brush" && this._brushing && this._buttonBehaviorCurrent === "buttons") {
-      const buttonDomain = 0.5 * (this._ticksWidth / this._availableTicks.length - this._handleSize + 0.2);
-      domain = [event.selection[0] + buttonDomain, event.selection[1] - buttonDomain].sort((a, b) => a - b);
+      const diffs = event.selection.map(d => Math.abs(d - event.sourceEvent.offsetX));
+
+      domain = diffs[1] <= diffs[0] 
+        ? [event.selection[0], event.sourceEvent.offsetX].sort((a, b) => a - b)
+        : [event.sourceEvent.offsetX, event.selection[1]].sort((a, b) => a - b);
+
     }
 
     const ticks = this._buttonBehaviorCurrent === "ticks"
@@ -239,6 +243,7 @@ export default class Timeline extends Axis {
             tickFormat = d3Scale.tickFormat();
 
       ticks = this._ticks ? ticks : d3Scale.ticks();
+
       // Measures size of ticks
       this._ticksWidth = ticks.reduce((sum, d, i) => {
         const f = this._shapeConfig.labelConfig.fontFamily(d, i),
