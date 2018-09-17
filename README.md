@@ -33,7 +33,7 @@ new d3plus.Timeline()
 
 ### More Examples
 
- * [Changing Styles](http://d3plus.org/examples/d3plus-timeline/change-style/)<sup> ***New***</sup>
+ * [Changing Styles](http://d3plus.org/examples/d3plus-timeline/change-style/)
 
 ## API Reference
 
@@ -176,4 +176,4 @@ This is a static method of [<code>Timeline</code>](#Timeline), and is chainable 
 
 
 
-###### <sub>Documentation generated on Wed, 05 Sep 2018 15:22:59 GMT</sub>
+###### <sub>Documentation generated on Mon, 17 Sep 2018 17:10:21 GMT</sub>
