@@ -274,6 +274,9 @@ export default class Timeline extends Axis {
     if (this._buttonBehaviorCurrent === "buttons") {
       if (!this._ticks) this._ticks = Array.from(Array(this._domain[this._domain.length - 1] - this._domain[0] + 1), (_, x) => this._domain[0] + x);
       if (!this._brushing) this._handleSize = 0;
+
+      this._scale = "ordinal";
+      this._domain = this._ticks;
     }
 
     if (this._ticksWidth && this._buttonBehaviorCurrent === "buttons") {
@@ -293,11 +296,7 @@ export default class Timeline extends Axis {
 
       this._range = [this._align === "start" ? undefined : this._marginLeft + buttonMargin, marginRight]; 
     }
-    
-    if (this._buttonBehaviorCurrent === "buttons") {
-      this._scale = "ordinal";
-      this._domain = this._ticks;
-    }
+
     super.render(callback);
 
     const offset = this._outerBounds[y],
