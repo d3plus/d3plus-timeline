@@ -42,7 +42,6 @@ export default class Timeline extends Axis {
     this._height = 100;
     this._on = {};
     this.orient("bottom");
-    this._padding = 10;
     this._scale = "time";
     this._selectionConfig = {
       "fill": "#777",
@@ -240,7 +239,7 @@ export default class Timeline extends Axis {
     if (this._buttonBehavior !== "ticks") {
       let ticks = this._ticks ? this._ticks.map(date) : this._domain.map(date);
       const d3Scale = scaleTime().domain(ticks).range([0, this._width]),
-            padding = this._padding || 10,
+            padding = this._padding >= 10 ? this._padding : 10,
             tickFormat = d3Scale.tickFormat();
 
       ticks = this._ticks ? ticks : d3Scale.ticks();
