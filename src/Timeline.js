@@ -276,7 +276,7 @@ export default class Timeline extends Axis {
       if (!this._brushing) this._handleSize = 0;
 
       this._scale = "ordinal";
-      this._domain = this._ticks;
+      this._domain = this._ticks.sort((a, b) => a - b);
     }
 
     if (this._ticksWidth && this._buttonBehaviorCurrent === "buttons") {
@@ -294,7 +294,8 @@ export default class Timeline extends Axis {
         ? (this._width + this._ticksWidth) / 2 - buttonMargin : this._align === "start" 
           ? this._ticksWidth - buttonMargin : undefined;
 
-      this._range = [this._align === "start" ? undefined : this._marginLeft + buttonMargin, marginRight]; 
+      this._padding = this._buttonPadding;
+      this._range = [this._align === "start" ? undefined : this._marginLeft + buttonMargin, marginRight];
     }
 
     super.render(callback);
