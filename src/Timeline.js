@@ -33,7 +33,6 @@ export default class Timeline extends Axis {
     this._brushFilter = () => !event.button && event.detail < 2;
     this._buttonBehavior = "auto";
     this._buttonHeight = 30;
-    this._buttonPadding = 12;
     this._domain = [2001, 2010];
     this._gridSize = 0;
     this._handleConfig = {
@@ -43,6 +42,7 @@ export default class Timeline extends Axis {
     this._height = 100;
     this._on = {};
     this.orient("bottom");
+    this._padding = 10;
     this._scale = "time";
     this._selectionConfig = {
       "fill": "#777",
@@ -239,7 +239,8 @@ export default class Timeline extends Axis {
 
     if (this._buttonBehavior !== "ticks") {
       let ticks = this._ticks ? this._ticks.map(date) : this._domain.map(date);
-      const d3Scale = scaleTime().domain(ticks).range([0, this._width]), 
+      const d3Scale = scaleTime().domain(ticks).range([0, this._width]),
+            padding = this._padding || 10,
             tickFormat = d3Scale.tickFormat();
 
       ticks = this._ticks ? ticks : d3Scale.ticks();
@@ -260,7 +261,7 @@ export default class Timeline extends Axis {
           ? Math.ceil(max(res.lines.map(line => textWidth(line, {"font-family": f, "font-size": s})))) + s / 4
           : 0;
         if (width % 2) width++;
-        return sum + width + 2 * this._buttonPadding;
+        return sum + width + 2 * padding;
       }, 0);
     }
 
@@ -272,14 +273,13 @@ export default class Timeline extends Axis {
     }
 
     if (this._buttonBehaviorCurrent === "buttons") {
-      if (!this._ticks) this._ticks = Array.from(Array(this._domain[this._domain.length - 1] - this._domain[0] + 1), (_, x) => this._domain[0] + x);
       if (!this._brushing) this._handleSize = 0;
+      if (!this._padding) this._padding = 10;
+      if (!this._ticks) this._ticks = Array.from(Array(this._domain[this._domain.length - 1] - this._domain[0] + 1), (_, x) => this._domain[0] + x);
 
       this._scale = "ordinal";
       this._domain = this._ticks.sort((a, b) => a - b);
-    }
 
-    if (this._ticksWidth && this._buttonBehaviorCurrent === "buttons") {
       let ticks = this._ticks ? this._ticks.map(date) : this._domain.map(date);
       const d3Scale = scaleTime().domain(ticks).range([0, this._ticksWidth]);
       ticks = this._ticks ? ticks : d3Scale.ticks();
@@ -294,7 +294,6 @@ export default class Timeline extends Axis {
         ? (this._width + this._ticksWidth) / 2 - buttonMargin : this._align === "start" 
           ? this._ticksWidth - buttonMargin : undefined;
 
-      this._padding = this._buttonPadding;
       this._range = [this._align === "start" ? undefined : this._marginLeft + buttonMargin, marginRight];
     }
 
@@ -375,16 +374,6 @@ function() {
     */
   buttonHeight(_) {
     return arguments.length ? (this._buttonHeight = _, this) : this._buttonHeight;
-  }
-
-  /**
-        @memberof Timeline
-        @desc If *value* is specified, sets the button padding and returns the current class instance. If *value* is not specified, returns the current button padding.
-        @param {Number} [*value* = 10]
-        @chainable
-    */
-  buttonPadding(_) {
-    return arguments.length ? (this._buttonPadding = _, this) : this._buttonPadding;
   }
 
   /**
