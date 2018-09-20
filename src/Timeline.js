@@ -160,7 +160,8 @@ export default class Timeline extends Axis {
       @private
   */
   _dateToString(d) {
-    return d instanceof Date ? d.getFullYear() : d;
+    const tickFormat = scaleTime().tickFormat();
+    return d instanceof Date ? tickFormat(d) : d;
   }
 
   /**
@@ -252,7 +253,7 @@ export default class Timeline extends Axis {
       let ticks = this._ticks ? this._ticks.map(date) : this._domain.map(date);
       const d3Scale = scaleTime().domain(ticks).range([0, this._width]), 
             tickFormat = d3Scale.tickFormat();
-
+      
       ticks = this._ticks ? ticks : d3Scale.ticks();
 
       // Measures size of ticks
