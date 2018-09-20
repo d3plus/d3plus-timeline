@@ -156,6 +156,15 @@ export default class Timeline extends Axis {
 
   /**
       @memberof Timeline
+      @desc Converts a Date object to string.
+      @private
+  */
+  _dateToString(d) {
+    return d instanceof Date ? d.getFullYear() : d;
+  }
+
+  /**
+      @memberof Timeline
       @desc Updates domain of the timeline used in brush functions.
       @private
   */
@@ -211,9 +220,10 @@ export default class Timeline extends Axis {
       @private
   */
   _updateBrushLimit(domain) {
-    
+    // console.log(domain);
+    // console.log(domain.map(d => d instanceof Date ? d.getFullYear() : d));
     const selection = this._buttonBehaviorCurrent === "ticks" ? domain.map(date).map(this._d3Scale) : domain;
-
+    // console.log(selection);
     if (selection[0] === selection[1]) {
       selection[0] -= 0.1;
       selection[1] += 0.1;
@@ -236,6 +246,8 @@ export default class Timeline extends Axis {
   */
   render(callback) {
     const {height, y} = this._position;
+
+    if (this._ticks) this._ticks = this._ticks.map(this._dateToString);
 
     if (this._buttonBehavior !== "ticks") {
       let ticks = this._ticks ? this._ticks.map(date) : this._domain.map(date);
@@ -314,11 +326,18 @@ export default class Timeline extends Axis {
       ? this._availableTicks[this._availableTicks.length - 1]
       : range[range.length - 1];
 
+    console.log(this._selection);
     const selection = this._selection === void 0 ? [latest, latest]
       : this._selection instanceof Array
-        ? this._selection.slice()
-        : [this._selection, this._selection];
+        ? this._selection.map(this._dateToString).slice()
+        : [
+          this._dateToString(this._selection), 
+          this._dateToString(this._selection)
+        ];
 
+    console.log(this._selection);
+    console.log(range);
+    console.log(selection);
     this._updateBrushLimit(selection);
 
     this._brushGroup = elem("g.brushGroup", {parent: this._group});
