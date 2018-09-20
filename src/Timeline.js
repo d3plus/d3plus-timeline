@@ -325,7 +325,6 @@ export default class Timeline extends Axis {
       ? this._availableTicks[this._availableTicks.length - 1]
       : range[range.length - 1];
 
-    
     const selection = this._selection === void 0 ? [latest, latest]
       : this._selection instanceof Array
         ? this._buttonBehaviorCurrent === "buttons" ? this._selection.map(d => range[this._ticks.indexOf(this._dateToString(d))]).slice() : this._selection
