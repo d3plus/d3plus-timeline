@@ -239,7 +239,6 @@ export default class Timeline extends Axis {
     if (this._buttonBehavior !== "ticks") {
       let ticks = this._ticks ? this._ticks.map(date) : this._domain.map(date);
       const d3Scale = scaleTime().domain(ticks).range([0, this._width]),
-            padding = this._padding >= 10 ? this._padding : 10,
             tickFormat = d3Scale.tickFormat();
 
       ticks = this._ticks ? ticks : d3Scale.ticks();
@@ -260,7 +259,7 @@ export default class Timeline extends Axis {
           ? Math.ceil(max(res.lines.map(line => textWidth(line, {"font-family": f, "font-size": s})))) + s / 4
           : 0;
         if (width % 2) width++;
-        return sum + width + 2 * padding;
+        return sum + width + 2 * this._padding;
       }, 0);
     }
 
@@ -290,7 +289,7 @@ export default class Timeline extends Axis {
           ? this._width - this._ticksWidth : 0;
 
       const marginRight = this._align === "middle"
-        ? (this._width + this._ticksWidth) / 2 - buttonMargin : this._align === "start" 
+        ? (this._width + this._ticksWidth) / 2 : this._align === "start" 
           ? this._ticksWidth - buttonMargin : undefined;
 
       this._range = [this._align === "start" ? undefined : this._marginLeft + buttonMargin, marginRight];
