@@ -274,8 +274,9 @@ export default class Timeline extends Axis {
     if (this._buttonBehaviorCurrent === "buttons") {
       this._scale = "ordinal";
       if (!this._brushing) this._handleSize = 0;
+      const domain = this._domain.map(date).map(this._tickFormat).map(Number);
 
-      this._domain = Array.from(Array(this._domain[this._domain.length - 1] - this._domain[0] + 1), (_, x) => this._domain[0] + x).map(date);
+      this._domain = Array.from(Array(domain[domain.length - 1] - domain[0] + 1), (_, x) => domain[0] + x).map(date);
       this._ticks = this._domain;
 
       const buttonMargin = 0.5 * this._ticksWidth / this._ticks.length;
