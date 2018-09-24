@@ -32,8 +32,8 @@ export default class Timeline extends Axis {
     this._brushing = true;
     this._brushFilter = () => !event.button && event.detail < 2;
     this._buttonBehavior = "auto";
+    this._buttonPadding = 10;
     this._buttonHeight = 30;
-    this._buttonPadding = 12;
     this._domain = [2001, 2010];
     this._gridSize = 0;
     this._handleConfig = {
@@ -241,7 +241,7 @@ export default class Timeline extends Axis {
 
       let ticks = this._ticks ? this._ticks.map(date) : this._domain.map(date);
 
-      const d3Scale = scaleTime().domain(ticks).range([0, this._width]), 
+      const d3Scale = scaleTime().domain(ticks).range([0, this._width]),
             tickFormat = d3Scale.tickFormat();
             
       ticks = this._ticks ? ticks : d3Scale.ticks();
@@ -286,10 +286,10 @@ export default class Timeline extends Axis {
           ? this._width - this._ticksWidth : 0;
 
       const marginRight = this._align === "middle"
-        ? (this._width + this._ticksWidth) / 2 - buttonMargin : this._align === "start" 
-          ? this._ticksWidth - buttonMargin : undefined;
+        ? (this._width + this._ticksWidth) / 2 : this._align === "start" 
+          ? this._ticksWidth : undefined;
 
-      this._range = [this._align === "start" ? undefined : this._marginLeft + buttonMargin, marginRight]; 
+      this._range = [this._align === "start" ? undefined : this._marginLeft + buttonMargin, marginRight];
     }
 
     if (this._ticks && !this._labels) {
@@ -336,6 +336,16 @@ export default class Timeline extends Axis {
   }
 
   /**
+        @memberof Timeline
+        @desc If *value* is specified, sets the button padding and returns the current class instance. If *value* is not specified, returns the current button padding.
+        @param {Number} [*value* = 10]
+        @chainable
+    */
+  buttonPadding(_) {
+    return arguments.length ? (this._buttonPadding = _, this) : this._buttonPadding;
+  }
+
+  /**
       @memberof Timeline
       @desc If *value* is specified, toggles the brushing value and returns the current class instance. If *value* is not specified, returns the current brushing value.
       @param {Boolean} [*value* = true]
@@ -377,16 +387,6 @@ function() {
     */
   buttonHeight(_) {
     return arguments.length ? (this._buttonHeight = _, this) : this._buttonHeight;
-  }
-
-  /**
-        @memberof Timeline
-        @desc If *value* is specified, sets the button padding and returns the current class instance. If *value* is not specified, returns the current button padding.
-        @param {Number} [*value* = 10]
-        @chainable
-    */
-  buttonPadding(_) {
-    return arguments.length ? (this._buttonPadding = _, this) : this._buttonPadding;
   }
 
   /**
