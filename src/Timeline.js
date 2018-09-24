@@ -270,25 +270,15 @@ export default class Timeline extends Axis {
 
     this._buttonBehaviorCurrent = this._buttonBehavior === "auto" ? this._ticksWidth < this._width ? "buttons" : "ticks" : this._buttonBehavior;
 
-    if (this._ticks && !this._labels) {
-      if (this._buttonBehaviorCurrent === "ticks") this._domain = [min(this._ticks), max(this._ticks)];
-      this.labels(this._ticks);
-    }
 
     if (this._buttonBehaviorCurrent === "buttons") {
-      if (!this._ticks) this._ticks = Array.from(Array(this._domain[this._domain.length - 1] - this._domain[0] + 1), (_, x) => this._domain[0] + x);
+      this._scale = "ordinal";
       if (!this._brushing) this._handleSize = 0;
 
-      this._scale = "ordinal";
-      this._domain = this._ticks;
-    }
+      this._domain = Array.from(Array(this._domain[this._domain.length - 1] - this._domain[0] + 1), (_, x) => this._domain[0] + x).map(date);
+      this._ticks = this._domain;
 
-    if (this._ticksWidth && this._buttonBehaviorCurrent === "buttons") {
-      let ticks = this._ticks ? this._ticks.map(date) : this._domain.map(date);
-      const d3Scale = scaleTime().domain(ticks).range([0, this._ticksWidth]);
-      ticks = this._ticks ? ticks : d3Scale.ticks();
-
-      const buttonMargin = 0.5 * this._ticksWidth / ticks.length;
+      const buttonMargin = 0.5 * this._ticksWidth / this._ticks.length;
 
       this._marginLeft = this._align === "middle" 
         ? (this._width - this._ticksWidth) / 2 : this._align === "end" 
@@ -299,6 +289,11 @@ export default class Timeline extends Axis {
           ? this._ticksWidth - buttonMargin : undefined;
 
       this._range = [this._align === "start" ? undefined : this._marginLeft + buttonMargin, marginRight]; 
+    }
+
+    if (this._ticks && !this._labels) {
+      if (this._buttonBehaviorCurrent === "ticks") this._domain = [min(this._ticks), max(this._ticks)];
+      this.labels(this._ticks);
     }
 
     super.render(callback);
