@@ -156,16 +156,6 @@ export default class Timeline extends Axis {
 
   /**
       @memberof Timeline
-      @desc Converts a Date object to string.
-      @private
-  */
-  _dateToString(d) {
-    const tickFormat = scaleTime().tickFormat();
-    return d instanceof Date ? tickFormat(d) : d;
-  }
-
-  /**
-      @memberof Timeline
       @desc Updates domain of the timeline used in brush functions.
       @private
   */
@@ -247,14 +237,18 @@ export default class Timeline extends Axis {
   render(callback) {
     const {height, y} = this._position;
 
-    if (this._ticks) this._ticks = this._ticks.map(this._dateToString);
+    // if (this._ticks) this._ticks = this._ticks.map(this._dateToString);
 
     if (this._buttonBehavior !== "ticks") {
+
       let ticks = this._ticks ? this._ticks.map(date) : this._domain.map(date);
+
       const d3Scale = scaleTime().domain(ticks).range([0, this._width]), 
             tickFormat = d3Scale.tickFormat();
-      
+            
       ticks = this._ticks ? ticks : d3Scale.ticks();
+
+      if (!this._tickFormat) this._tickFormat = tickFormat;
 
       // Measures size of ticks
       this._ticksWidth = ticks.reduce((sum, d, i) => {
@@ -328,11 +322,11 @@ export default class Timeline extends Axis {
 
     const selection = this._selection === void 0 ? [latest, latest]
       : this._selection instanceof Array
-        ? this._buttonBehaviorCurrent === "buttons" ? this._selection.map(d => range[this._ticks.indexOf(this._dateToString(d))]).slice() : this._selection.slice()
-        : [
-          this._buttonBehaviorCurrent === "buttons" ? range[this._ticks.indexOf(this._dateToString(this._selection))] : this._selection, 
-          this._buttonBehaviorCurrent === "buttons" ? range[this._ticks.indexOf(this._dateToString(this._selection))] : this._selection
-        ];
+        ? this._buttonBehaviorCurrent === "buttons" 
+          ? this._selection.map(d => this._ticks.map(Number).indexOf(+d)).slice() : this._selection.slice()
+        : this._buttonBehaviorCurrent === "buttons" 
+          ? [range[this._ticks.map(Number).indexOf(+this._selection)], range[this._ticks.map(Number).indexOf(+this._selection)]]
+          : [this._selection, this._selection];
 
     this._updateBrushLimit(selection);
 
