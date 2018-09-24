@@ -32,6 +32,7 @@ export default class Timeline extends Axis {
     this._brushing = true;
     this._brushFilter = () => !event.button && event.detail < 2;
     this._buttonBehavior = "auto";
+    this._buttonPadding = 10;
     this._buttonHeight = 30;
     this._domain = [2001, 2010];
     this._gridSize = 0;
@@ -259,7 +260,7 @@ export default class Timeline extends Axis {
           ? Math.ceil(max(res.lines.map(line => textWidth(line, {"font-family": f, "font-size": s})))) + s / 4
           : 0;
         if (width % 2) width++;
-        return sum + width + 2 * this._padding;
+        return sum + width + 2 * this._buttonPadding;
       }, 0);
     }
 
@@ -328,6 +329,16 @@ export default class Timeline extends Axis {
 
     return this;
 
+  }
+
+  /**
+        @memberof Timeline
+        @desc If *value* is specified, sets the button padding and returns the current class instance. If *value* is not specified, returns the current button padding.
+        @param {Number} [*value* = 10]
+        @chainable
+    */
+  buttonPadding(_) {
+    return arguments.length ? (this._buttonPadding = _, this) : this._buttonPadding;
   }
 
   /**
