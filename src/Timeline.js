@@ -291,7 +291,7 @@ export default class Timeline extends Axis {
 
       const marginRight = this._align === "middle"
         ? (this._width + this._ticksWidth) / 2 : this._align === "start" 
-          ? this._ticksWidth - buttonMargin : undefined;
+          ? this._ticksWidth : undefined;
 
       this._range = [this._align === "start" ? undefined : this._marginLeft + buttonMargin, marginRight];
     }
