@@ -55,7 +55,7 @@ export default class Timeline extends Axis {
       fill: () => this._buttonBehaviorCurrent === "buttons" ? "#EEE" : "#444",
       height: d => this._buttonBehaviorCurrent === "buttons" ? this._buttonHeight : d.tick ? 10 : 0,
       width: d => this._buttonBehaviorCurrent === "buttons" ? this._ticksWidth / this._availableTicks.length : d.tick ? this._domain.map(t => date(t).getTime()).includes(d.id) ? 2 : 1 : 0,
-      y: d => this._buttonBehaviorCurrent === "buttons" ? this._height / 2 : d.y
+      y: d => this._buttonBehaviorCurrent === "buttons" ? this._align === "middle" ? this._height / 2 : this._align === "start" ? this._margin.top + this._buttonHeight / 2 : this._height - this._buttonHeight / 2 - this._margin.bottom : d.y
     });
     this._snapping = true;
 
@@ -146,7 +146,16 @@ export default class Timeline extends Axis {
       .attr("height", this._buttonBehaviorCurrent === "buttons" ? this._buttonHeight : timelineHeight + this._handleSize);
 
     if (this._buttonBehaviorCurrent === "buttons") {
-      const yTransform = this._height / 2 - this._buttonHeight / 2;
+
+      console.log(this);
+      console.log(this._buttonHeight);
+      console.log(this._height);
+      console.log(this._margin);
+      // this._buttonHeight - this._margin.top
+      const yTransform = this._align === "middle" 
+        ? this._height / 2 - this._buttonHeight / 2
+        : this._align === "start" 
+          ? this._margin.top : this._height - this._buttonHeight - this._margin.bottom;
 
       brushHandle.attr("y", yTransform);
       brushOverlay.attr("x", this._marginLeft).attr("width", this._ticksWidth);
