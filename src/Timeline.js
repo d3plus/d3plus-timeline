@@ -147,11 +147,6 @@ export default class Timeline extends Axis {
 
     if (this._buttonBehaviorCurrent === "buttons") {
 
-      console.log(this);
-      console.log(this._buttonHeight);
-      console.log(this._height);
-      console.log(this._margin);
-      // this._buttonHeight - this._margin.top
       const yTransform = this._align === "middle" 
         ? this._height / 2 - this._buttonHeight / 2
         : this._align === "start" 
