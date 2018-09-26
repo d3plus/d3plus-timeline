@@ -31,6 +31,7 @@ export default class Timeline extends Axis {
     });
     this._brushing = true;
     this._brushFilter = () => !event.button && event.detail < 2;
+    this._buttonAlign = "middle";
     this._buttonBehavior = "auto";
     this._buttonPadding = 10;
     this._buttonHeight = 30;
@@ -281,15 +282,15 @@ export default class Timeline extends Axis {
 
       const buttonMargin = 0.5 * this._ticksWidth / this._ticks.length;
 
-      this._marginLeft = this._align === "middle" 
-        ? (this._width - this._ticksWidth) / 2 : this._align === "end" 
+      this._marginLeft = this._buttonAlign === "middle" 
+        ? (this._width - this._ticksWidth) / 2 : this._buttonAlign === "end" 
           ? this._width - this._ticksWidth : 0;
 
-      const marginRight = this._align === "middle"
-        ? (this._width + this._ticksWidth) / 2 : this._align === "start" 
+      const marginRight = this._buttonAlign === "middle"
+        ? (this._width + this._ticksWidth) / 2 : this._buttonAlign === "start" 
           ? this._ticksWidth : undefined;
 
-      this._range = [this._align === "start" ? undefined : this._marginLeft + buttonMargin, marginRight];
+      this._range = [this._buttonAlign === "start" ? undefined : this._marginLeft + buttonMargin, marginRight];
     }
 
     if (this._ticks && !this._labels) {
@@ -367,6 +368,16 @@ function() {
   */
   brushFilter(_) {
     return arguments.length ? (this._brushFilter = _, this) : this._brushFilter;
+  }
+
+  /**
+      @memberof Timeline
+      @desc If *value* is specified, toggles the horizontal alignment of the button timeline. Accepted values are `"start"`, `"middle"` and `"end"`. If *value* is not specified, returns the current button value.
+      @param {String} [*value* = "middle"]
+      @chainable
+  */
+  buttonAlign(_) {
+    return arguments.length ? (this._buttonBehavior = _, this) : this._buttonBehavior;
   }
 
   /**
