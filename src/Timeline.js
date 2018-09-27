@@ -381,7 +381,7 @@ function() {
       @chainable
   */
   buttonAlign(_) {
-    return arguments.length ? (this._buttonBehavior = _, this) : this._buttonBehavior;
+    return arguments.length ? (this._buttonAlign = _, this) : this._buttonAlign;
   }
 
   /**
