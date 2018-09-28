@@ -294,7 +294,10 @@ export default class Timeline extends Axis {
         ? (this._width + this._ticksWidth) / 2 : this._buttonAlign === "start" 
           ? this._ticksWidth : undefined;
 
-      this._range = [this._buttonAlign === "start" ? undefined : this._marginLeft + buttonMargin, marginRight];
+      this._range = [
+        this._buttonAlign === "start" ? undefined : this._marginLeft + buttonMargin, 
+        this._buttonAlign === "end" ? undefined : marginRight - buttonMargin
+      ];
     }
 
     if (this._ticks && !this._labels) {
