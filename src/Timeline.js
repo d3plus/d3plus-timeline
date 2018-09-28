@@ -2,7 +2,7 @@
     @external Axis
     @see https://github.com/d3plus/d3plus-axis#Axis
 */
-import {max, min} from "d3-array";
+import {max} from "d3-array";
 import {brushX} from "d3-brush";
 import {scaleTime} from "d3-scale";
 import {event} from "d3-selection";
