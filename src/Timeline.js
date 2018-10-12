@@ -330,6 +330,7 @@ export default class Timeline extends Axis {
 
     this._brushGroup = elem("g.brushGroup", {parent: this._group});
     this._brushGroup.call(brush).transition(this._transition)
+      .attr("class", this._buttonBehaviorCurrent === "buttons" ? "d3plus-timeline-buttons" : "d3plus-timeline-ticks")
       .call(brush.move, this._buttonBehaviorCurrent === "ticks" ? this._updateBrushLimit(selection) : selection);
 
     this._outerBounds.y -= this._handleSize / 2;
