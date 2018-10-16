@@ -297,6 +297,10 @@ export default class Timeline extends Axis {
         this._buttonAlign === "start" ? undefined : this._marginLeft + buttonMargin,
         this._buttonAlign === "end" ? undefined : marginRight - buttonMargin
       ];
+    } 
+
+    if (this._buttonBehaviorCurrent === "ticks" && this._ticks) {
+      this._domain = [this._ticks[0], this._ticks[this._ticks.length - 1]];
     }
 
     this._labels = this._ticks;
@@ -330,7 +334,6 @@ export default class Timeline extends Axis {
 
     this._brushGroup = elem("g.brushGroup", {parent: this._group});
     this._brushGroup.call(brush).transition(this._transition)
-      .attr("class", this._buttonBehaviorCurrent === "buttons" ? "d3plus-timeline-buttons" : "d3plus-timeline-ticks")
       .call(brush.move, this._buttonBehaviorCurrent === "ticks" ? this._updateBrushLimit(selection) : selection);
 
     this._outerBounds.y -= this._handleSize / 2;
