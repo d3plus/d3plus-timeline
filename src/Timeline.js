@@ -42,6 +42,7 @@ export default class Timeline extends Axis {
     };
     this._handleSize = 6;
     this._height = 100;
+    this._labelRotation = false;
     this._on = {};
     this.orient("bottom");
     this._scale = "time";
@@ -58,6 +59,7 @@ export default class Timeline extends Axis {
       y: d => this._buttonBehaviorCurrent === "buttons" ? this._align === "middle" ? this._height / 2 : this._align === "start" ? this._margin.top + this._buttonHeight / 2 : this._height - this._buttonHeight / 2 - this._margin.bottom : d.y
     });
     this._snapping = true;
+    this._tickSpecifier = "%Y";
 
   }
 
@@ -246,12 +248,11 @@ export default class Timeline extends Axis {
 
       let ticks = this._ticks ? this._ticks.map(date) : this._domain.map(date);
 
-      const d3Scale = scaleTime().domain(ticks).range([0, this._width]),
-            tickFormat = d3Scale.tickFormat();
+      const d3Scale = scaleTime().domain(ticks).range([0, this._width]);
 
       ticks = this._ticks ? ticks : d3Scale.ticks();
 
-      if (!this._tickFormat) this._tickFormat = tickFormat;
+      if (!this._tickFormat) this._tickFormat = d3Scale.tickFormat(ticks.length - 1, this._tickSpecifier);
 
       // Measures size of ticks
       this._ticksWidth = ticks.reduce((sum, d, i) => {
@@ -263,8 +264,7 @@ export default class Timeline extends Axis {
           .fontSize(s)
           .lineHeight(this._shapeConfig.lineHeight ? this._shapeConfig.lineHeight(d, i) : undefined);
 
-        const res = wrap(tickFormat(d));
-
+        const res = wrap(d3Scale.tickFormat(ticks.length - 1, this._tickSpecifier)(d));
         let width = res.lines.length
           ? Math.ceil(max(res.lines.map(line => textWidth(line, {"font-family": f, "font-size": s})))) + s / 4
           : 0;
@@ -281,6 +281,7 @@ export default class Timeline extends Axis {
       const domain = this._domain.map(date).map(this._tickFormat).map(Number);
 
       this._domain = this._ticks ? this._ticks.map(date) : Array.from(Array(domain[domain.length - 1] - domain[0] + 1), (_, x) => domain[0] + x).map(date);
+
       this._ticks = this._domain;
 
       const buttonMargin = 0.5 * this._ticksWidth / this._ticks.length;
@@ -334,9 +335,7 @@ export default class Timeline extends Axis {
 
     this._outerBounds.y -= this._handleSize / 2;
     this._outerBounds.height += this._handleSize / 2;
-
-    return this;
-
+    this._visibleTicks = ["Q1", "Q2", "Q3", "Q4"];
   }
 
   /**
@@ -462,6 +461,16 @@ function() {
   */
   snapping(_) {
     return arguments.length ? (this._snapping = _, this) : this._snapping;
+  }
+
+  /**
+      @memberof Timeline
+      @desc 
+      @param {String} [*value* = undefined]
+      @chainable
+  */
+  tickSpecifier(_) {
+    return arguments.length ? (this._tickSpecifier = _, this) : this._tickSpecifier;
   }
 
 }
