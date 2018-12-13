@@ -58,7 +58,7 @@ export default class Timeline extends Axis {
       y: d => this._buttonBehaviorCurrent === "buttons" ? this._align === "middle" ? this._height / 2 : this._align === "start" ? this._margin.top + this._buttonHeight / 2 : this._height - this._buttonHeight / 2 - this._margin.bottom : d.y
     });
     this._snapping = true;
-    this._tickSpecifier = "%Y";
+    this._tickSpecifier = "%B";
 
   }
 
@@ -254,7 +254,8 @@ export default class Timeline extends Axis {
       if (!this._tickFormat) this._tickFormat = d3Scale.tickFormat(ticks.length - 1, this._tickSpecifier);
 
       // Measures size of ticks
-      this._ticksWidth = ticks.reduce((sum, d, i) => {
+      let maxLabel = 0;
+      ticks.forEach((d, i) => {
         const f = this._shapeConfig.labelConfig.fontFamily(d, i),
               s = this._shapeConfig.labelConfig.fontSize(d, i);
 
@@ -268,8 +269,10 @@ export default class Timeline extends Axis {
           ? Math.ceil(max(res.lines.map(line => textWidth(line, {"font-family": f, "font-size": s})))) + s / 4
           : 0;
         if (width % 2) width++;
-        return sum + width + 2 * this._buttonPadding;
-      }, 0);
+        if (maxLabel < width) maxLabel = width + 2 * this._buttonPadding;
+      });
+
+      this._ticksWidth = maxLabel * ticks.length;
     }
 
     this._buttonBehaviorCurrent = this._buttonBehavior === "auto" ? this._ticksWidth < this._width ? "buttons" : "ticks" : this._buttonBehavior;
