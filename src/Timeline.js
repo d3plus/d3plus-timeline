@@ -340,7 +340,8 @@ export default class Timeline extends Axis {
 
     this._outerBounds.y -= this._handleSize / 2;
     this._outerBounds.height += this._handleSize / 2;
-    console.log(this)
+    
+    return this;
   }
 
   /**
