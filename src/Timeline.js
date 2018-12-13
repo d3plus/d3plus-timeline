@@ -300,6 +300,8 @@ export default class Timeline extends Axis {
       ];
     }
 
+    if (this._ticks) this._domain = this._ticks.map(date);
+
     this._labels = this._ticks;
 
     super.render(callback);
