@@ -42,7 +42,6 @@ export default class Timeline extends Axis {
     };
     this._handleSize = 6;
     this._height = 100;
-    this._labelRotation = false;
     this._on = {};
     this.orient("bottom");
     this._scale = "time";
@@ -277,6 +276,7 @@ export default class Timeline extends Axis {
 
     if (this._buttonBehaviorCurrent === "buttons") {
       this._scale = "ordinal";
+      this._labelRotation = 0;
       if (!this._brushing) this._handleSize = 0;
       const domain = this._domain.map(date).map(this._tickFormat).map(Number);
 
