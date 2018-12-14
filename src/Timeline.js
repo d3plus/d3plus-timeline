@@ -58,7 +58,6 @@ export default class Timeline extends Axis {
       y: d => this._buttonBehaviorCurrent === "buttons" ? this._align === "middle" ? this._height / 2 : this._align === "start" ? this._margin.top + this._buttonHeight / 2 : this._height - this._buttonHeight / 2 - this._margin.bottom : d.y
     });
     this._snapping = true;
-    this._tickSpecifier = undefined;
 
   }
 
@@ -467,16 +466,6 @@ function() {
   */
   snapping(_) {
     return arguments.length ? (this._snapping = _, this) : this._snapping;
-  }
-
-  /**
-      @memberof Timeline
-      @desc Allows to set ticks using custom specifiers.  If *value* is not specified, the default time format is returned.
-      @param {String} [*value* = undefined]
-      @chainable
-  */
-  tickSpecifier(_) {
-    return arguments.length ? (this._tickSpecifier = _, this) : this._tickSpecifier;
   }
 
 }
