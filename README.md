@@ -185,4 +185,4 @@ This is a static method of [<code>Timeline</code>](#Timeline), and is chainable 
 
 
 
-###### <sub>Documentation generated on Wed, 19 Dec 2018 18:46:22 GMT</sub>
+###### <sub>Documentation generated on Thu, 03 Jan 2019 22:48:13 GMT</sub>
