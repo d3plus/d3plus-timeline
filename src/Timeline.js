@@ -302,7 +302,7 @@ export default class Timeline extends Axis {
       ];
     }
 
-    if (this._ticks) this._domain = this._buttonBehavior === "ticks" ? [this._ticks[0], this._ticks[this._ticks.length - 1]] : this._ticks.map(date);
+    if (this._ticks) this._domain = this._buttonBehaviorCurrent === "ticks" ? [this._ticks[0], this._ticks[this._ticks.length - 1]] : this._ticks.map(date);
 
     this._labels = this._ticks;
 
