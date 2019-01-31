@@ -280,7 +280,7 @@ export default class Timeline extends Axis {
       this._scale = "ordinal";
       this._labelRotation = 0;
       if (!this._brushing) this._handleSize = 0;
-      const domain = this._domain.map(date).map(this._tickFormat).map(Number);
+      const domain = scaleTime().domain(this._domain.map(date)).ticks().map(this._tickFormat).map(Number);
 
       this._domain = this._ticks ? this._ticks.map(date) : Array.from(Array(domain[domain.length - 1] - domain[0] + 1), (_, x) => domain[0] + x).map(date);
 
