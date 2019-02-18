@@ -5,7 +5,7 @@
 import {max} from "d3-array";
 import {brushX} from "d3-brush";
 import {scaleTime} from "d3-scale";
-import {event} from "d3-selection";
+import {event, mouse} from "d3-selection";
 
 import {Axis, date} from "d3plus-axis";
 import {attrize, closest, elem} from "d3plus-common";
@@ -166,13 +166,11 @@ export default class Timeline extends Axis {
   */
   _updateDomain() {
 
-    let domain = this._buttonBehaviorCurrent === "ticks"
-      ? (event.selection && this._brushing
-        ? event.selection
-        : [event.sourceEvent.offsetX, event.sourceEvent.offsetX]).map(this._d3Scale.invert).map(Number)
-      : (event.selection && this._brushing
-        ? event.selection
-        : [event.sourceEvent.offsetX, event.sourceEvent.offsetX]).map(Number);
+    const x = mouse(this._select.node())[0];
+    let domain = event.selection && this._brushing ? event.selection : [x, x];
+
+    if (this._buttonBehaviorCurrent === "ticks") domain = domain.map(this._d3Scale.invert);
+    domain = domain.map(Number);
 
     if (event.type === "brush" && this._brushing && this._buttonBehaviorCurrent === "buttons") {
       const diffs = event.selection.map(d => Math.abs(d - event.sourceEvent.offsetX));
@@ -339,7 +337,7 @@ export default class Timeline extends Axis {
 
     this._outerBounds.y -= this._handleSize / 2;
     this._outerBounds.height += this._handleSize / 2;
-    
+
     return this;
   }
 
