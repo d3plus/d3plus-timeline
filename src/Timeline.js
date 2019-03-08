@@ -42,6 +42,7 @@ export default class Timeline extends Axis {
     };
     this._handleSize = 6;
     this._height = 100;
+    this._labelOffset = false;
     this._on = {};
     this.orient("bottom");
     this._scale = "time";
