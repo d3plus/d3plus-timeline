@@ -59,6 +59,8 @@ export default class Timeline extends Axis {
       y: d => this._buttonBehaviorCurrent === "buttons" ? this._align === "middle" ? this._height / 2 : this._align === "start" ? this._margin.top + this._buttonHeight / 2 : this._height - this._buttonHeight / 2 - this._margin.bottom : d.y
     });
     this._snapping = true;
+    this._tickPrevFormatters = {};
+    this._tickPrevFormat = undefined;
 
   }
 
@@ -240,6 +242,13 @@ export default class Timeline extends Axis {
   */
   render(callback) {
     const {height, y} = this._position;
+
+    if (this._tickPrevFormat) {
+      const formatter = typeof this._tickPrevFormat === "string" || this._tickPrevFormat instanceof String
+        ? this._tickPrevFormatters[this._tickPrevFormat] || this._tickFormat : this._tickPrevFormat;
+
+      this._ticks = this._ticks.map(formatter);
+    }
 
     if (this._buttonBehavior !== "ticks") {
 
@@ -465,6 +474,26 @@ function() {
   */
   snapping(_) {
     return arguments.length ? (this._snapping = _, this) : this._snapping;
+  }
+
+  /**
+      @memberof Timeline
+      @desc If *value* is specified, pre-process the ticks before to use tickFormat. This one is useful if you have time ticks different to years or an date object. If *value* is a string, try to get the key of `tickPrevFormatters`.
+      @param {Function|String} [*value* = undefined]
+      @chainable
+  */
+  tickPrevFormat(_) {
+    return arguments.length ? (this._tickPrevFormat = _, this) : this._tickPrevFormat;
+  }
+
+  /**
+      @memberof Timeline
+      @desc If *value* is specified, creates a set of options for preprocessing the time ticks. The entries of tickPrevFormatters() are used by tickPrevFormat() when a string is defined in that method.
+      @param {Object} [*value* = {}]
+      @chainable
+  */
+  tickPrevFormatters(_) {
+    return arguments.length ? (this._tickPrevFormatters = _, this) : this._tickPrevFormatters;
   }
 
 }
