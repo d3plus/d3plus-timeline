@@ -62,7 +62,6 @@ export default class Timeline extends Axis {
       y: d => this._buttonBehaviorCurrent === "buttons" ? this._align === "middle" ? this._height / 2 : this._align === "start" ? this._margin.top + this._buttonHeight / 2 : this._height - this._buttonHeight / 2 - this._margin.bottom : d.y
     });
     this._snapping = true;
-    this._tickPrevFormatters = {};
 
   }
 
