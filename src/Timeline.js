@@ -26,6 +26,8 @@ export default class Timeline extends Axis {
 
     super();
 
+    const dateParser = this._dateParser || date;
+
     this._barConfig = Object.assign({}, this._barConfig, {
       "stroke-width": () => this._buttonBehaviorCurrent === "buttons" ? 0 : 1
     });
@@ -35,6 +37,7 @@ export default class Timeline extends Axis {
     this._buttonBehavior = "auto";
     this._buttonPadding = 10;
     this._buttonHeight = 30;
+    this._dateParser = undefined;
     this._domain = [2001, 2010];
     this._gridSize = 0;
     this._handleConfig = {
@@ -55,12 +58,11 @@ export default class Timeline extends Axis {
       labelBounds: d => this._buttonBehaviorCurrent === "buttons" ? {x: d.labelBounds.x, y: -5, width: d.labelBounds.width, height: this._buttonHeight} : d.labelBounds,
       fill: () => this._buttonBehaviorCurrent === "buttons" ? "#EEE" : "#444",
       height: d => this._buttonBehaviorCurrent === "buttons" ? this._buttonHeight : d.tick ? 10 : 0,
-      width: d => this._buttonBehaviorCurrent === "buttons" ? this._ticksWidth / this._availableTicks.length : d.tick ? this._domain.map(t => date(t).getTime()).includes(d.id) ? 2 : 1 : 0,
+      width: d => this._buttonBehaviorCurrent === "buttons" ? this._ticksWidth / this._availableTicks.length : d.tick ? this._domain.map(t => dateParser(t).getTime()).includes(d.id) ? 2 : 1 : 0,
       y: d => this._buttonBehaviorCurrent === "buttons" ? this._align === "middle" ? this._height / 2 : this._align === "start" ? this._margin.top + this._buttonHeight / 2 : this._height - this._buttonHeight / 2 - this._margin.bottom : d.y
     });
     this._snapping = true;
     this._tickPrevFormatters = {};
-    this._tickPrevFormat = undefined;
 
   }
 
@@ -169,6 +171,8 @@ export default class Timeline extends Axis {
   */
   _updateDomain() {
 
+    const dateParser = date;
+
     const x = mouse(this._select.node())[0];
     let domain = event.selection && this._brushing ? event.selection : [x, x];
 
@@ -189,8 +193,8 @@ export default class Timeline extends Axis {
       : this._d3Scale.range();
 
     if (this._buttonBehaviorCurrent === "ticks") {
-      domain[0] = date(closest(domain[0], ticks));
-      domain[1] = date(closest(domain[1], ticks));
+      domain[0] = dateParser(closest(domain[0], ticks));
+      domain[1] = dateParser(closest(domain[1], ticks));
     }
     else {
       domain[0] = closest(domain[0], ticks);
@@ -203,8 +207,8 @@ export default class Timeline extends Axis {
       this._selection = this._buttonBehaviorCurrent === "ticks"
         ? single ? domain[0] : domain
         : single
-          ? date(this._availableTicks[ticks.indexOf(domain[0])])
-          : [date(this._availableTicks[ticks.indexOf(domain[0])]), date(this._availableTicks[ticks.indexOf(domain[1])])];
+          ? dateParser(this._availableTicks[ticks.indexOf(domain[0])])
+          : [dateParser(this._availableTicks[ticks.indexOf(domain[0])]), dateParser(this._availableTicks[ticks.indexOf(domain[1])])];
     }
 
     return domain;
@@ -218,7 +222,8 @@ export default class Timeline extends Axis {
   */
   _updateBrushLimit(domain) {
 
-    const selection = this._buttonBehaviorCurrent === "ticks" ? domain.map(date).map(this._d3Scale) : domain;
+    const dateParser = date;
+    const selection = this._buttonBehaviorCurrent === "ticks" ? domain.map(dateParser).map(this._d3Scale) : domain;
 
     if (selection[0] === selection[1]) {
       selection[0] -= 0.1;
@@ -242,17 +247,13 @@ export default class Timeline extends Axis {
   */
   render(callback) {
     const {height, y} = this._position;
+    const dateParser = this._dateParser || date;
 
-    if (this._tickPrevFormat) {
-      const formatter = typeof this._tickPrevFormat === "string" || this._tickPrevFormat instanceof String
-        ? this._tickPrevFormatters[this._tickPrevFormat] || this._tickFormat : this._tickPrevFormat;
-
-      this._ticks = this._ticks.map(formatter);
-    }
+    if (this._ticks) this._ticks = this._ticks.map(dateParser);
 
     if (this._buttonBehavior !== "ticks") {
 
-      let ticks = this._ticks ? this._ticks.map(date) : this._domain.map(date);
+      let ticks = this._ticks ? this._ticks.map(dateParser) : this._domain.map(dateParser);
 
       const d3Scale = scaleTime().domain(ticks).range([0, this._width]);
 
@@ -288,9 +289,9 @@ export default class Timeline extends Axis {
       this._scale = "ordinal";
       this._labelRotation = 0;
       if (!this._brushing) this._handleSize = 0;
-      const domain = scaleTime().domain(this._domain.map(date)).ticks().map(this._tickFormat).map(Number);
+      const domain = scaleTime().domain(this._domain.map(dateParser)).ticks().map(this._tickFormat).map(Number);
 
-      this._domain = this._ticks ? this._ticks.map(date) : Array.from(Array(domain[domain.length - 1] - domain[0] + 1), (_, x) => domain[0] + x).map(date);
+      this._domain = this._ticks ? this._ticks.map(dateParser) : Array.from(Array(domain[domain.length - 1] - domain[0] + 1), (_, x) => domain[0] + x).map(dateParser);
 
       this._ticks = this._domain;
 
@@ -310,7 +311,7 @@ export default class Timeline extends Axis {
       ];
     }
 
-    if (this._ticks) this._domain = this._buttonBehaviorCurrent === "ticks" ? [this._ticks[0], this._ticks[this._ticks.length - 1]] : this._ticks.map(date);
+    if (this._ticks) this._domain = this._buttonBehaviorCurrent === "ticks" ? [this._ticks[0], this._ticks[this._ticks.length - 1]] : this._ticks.map(dateParser);
 
     this._labels = this._ticks;
 
@@ -417,6 +418,16 @@ function() {
 
   /**
       @memberof Timeline
+      @desc If *value* is specified, overrides the behavior of date function for parsing the ticks.
+      @param {Function} [*value* = undefined]
+      @chainable
+  */
+  dateParser(_) {
+    return arguments.length ? (this._dateParser = _, this) : this._dateParser;
+  }
+
+  /**
+      @memberof Timeline
       @desc If *value* is specified, sets the handle style and returns the current class instance. If *value* is not specified, returns the current handle style.
       @param {Object} [*value*]
       @chainable
@@ -476,24 +487,5 @@ function() {
     return arguments.length ? (this._snapping = _, this) : this._snapping;
   }
 
-  /**
-      @memberof Timeline
-      @desc If *value* is specified, pre-process the ticks before to use tickFormat. This one is useful if you have time ticks different to years or an date object. If *value* is a string, try to get the key of `tickPrevFormatters`.
-      @param {Function|String} [*value* = undefined]
-      @chainable
-  */
-  tickPrevFormat(_) {
-    return arguments.length ? (this._tickPrevFormat = _, this) : this._tickPrevFormat;
-  }
-
-  /**
-      @memberof Timeline
-      @desc If *value* is specified, creates a set of options for preprocessing the time ticks. The entries of tickPrevFormatters() are used by tickPrevFormat() when a string is defined in that method.
-      @param {Object} [*value* = {}]
-      @chainable
-  */
-  tickPrevFormatters(_) {
-    return arguments.length ? (this._tickPrevFormatters = _, this) : this._tickPrevFormatters;
-  }
 
 }
