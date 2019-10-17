@@ -56,7 +56,7 @@ export default class Timeline extends Axis {
       labelBounds: d => this._buttonBehaviorCurrent === "buttons" ? {x: d.labelBounds.x, y: -5, width: d.labelBounds.width, height: this._buttonHeight} : d.labelBounds,
       fill: () => this._buttonBehaviorCurrent === "buttons" ? "#EEE" : "#444",
       height: d => this._buttonBehaviorCurrent === "buttons" ? this._buttonHeight : d.tick ? 10 : 0,
-      width: d => this._buttonBehaviorCurrent === "buttons" ? this._ticksWidth / this._availableTicks.length : d.tick ? this._domain.map(t => this._dateParser(t).getTime()).includes(d.id) ? 2 : 1 : 0,
+      width: d => this._buttonBehaviorCurrent === "buttons" ? this._ticksWidth / this._availableTicks.length : d.tick ? this._domain.map(t => t instanceof Date ? t.getTime() : this._dateParser(t).getTime()).includes(d.id) ? 2 : 1 : 0,
       y: d => this._buttonBehaviorCurrent === "buttons" ? this._align === "middle" ? this._height / 2 : this._align === "start" ? this._margin.top + this._buttonHeight / 2 : this._height - this._buttonHeight / 2 - this._margin.bottom : d.y
     });
     this._snapping = true;
@@ -246,7 +246,7 @@ export default class Timeline extends Axis {
 
     if (this._buttonBehavior !== "ticks") {
 
-      let ticks = this._ticks ? this._ticks.map(this._dateParser) : this._domain.map(this._dateParser);
+      let ticks = (this._ticks || this._domain).map(this._dateParser);
 
       const d3Scale = scaleTime().domain(ticks).range([0, this._width]);
 
@@ -283,8 +283,7 @@ export default class Timeline extends Axis {
       this._labelRotation = 0;
       if (!this._brushing) this._handleSize = 0;
       const domain = scaleTime().domain(this._domain.map(this._dateParser)).ticks().map(this._tickFormat).map(Number);
-
-      this._domain = this._ticks ? this._ticks.map(this._dateParser) : Array.from(Array(domain[domain.length - 1] - domain[0] + 1), (_, x) => domain[0] + x).map(this._dateParser);
+      this._domain = this._ticks ? this._ticks.map(this._dateParser) : Array.from(Array(domain[domain.length - 1] - domain[0] + 1), (_, x) => domain[0] + x).map(date);
 
       this._ticks = this._domain;
 
@@ -304,7 +303,8 @@ export default class Timeline extends Axis {
       ];
     }
 
-    if (this._ticks) this._domain = this._buttonBehaviorCurrent === "ticks" ? [this._ticks[0], this._ticks[this._ticks.length - 1]] : this._ticks.map(this._dateParser);
+    if (this._domain && this._domain.length > 2 && !this._ticks) this._ticks = this._domain.map(this._dateParser);
+    if (this._ticks) this._domain = this._buttonBehaviorCurrent === "ticks" ? [this._ticks[0], this._ticks[this._ticks.length - 1]] : this._ticks.map(date);
 
     this._labels = this._ticks;
 
