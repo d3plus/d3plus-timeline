@@ -250,8 +250,7 @@ export default class Timeline extends Axis {
 
       const d3Scale = scaleTime().domain(ticks).range([0, this._width]);
 
-      ticks = this._ticks ? ticks : d3Scale.ticks();
-
+      if (!this._ticks && this._domain.length === 2) ticks = d3Scale.ticks();
       if (!this._tickFormat) this._tickFormat = d3Scale.tickFormat(ticks.length - 1, this._tickSpecifier);
 
       // Measures size of ticks
