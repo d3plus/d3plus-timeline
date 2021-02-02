@@ -1,15 +1,18 @@
 # d3plus-timeline
 
-[![NPM Release](http://img.shields.io/npm/v/d3plus-timeline.svg?style=flat)](https://www.npmjs.org/package/d3plus-timeline) [![Build Status](https://travis-ci.org/d3plus/d3plus-timeline.svg?branch=master)](https://travis-ci.org/d3plus/d3plus-timeline) [![Dependency Status](http://img.shields.io/david/d3plus/d3plus-timeline.svg?style=flat)](https://david-dm.org/d3plus/d3plus-timeline) [![Gitter](https://img.shields.io/badge/-chat_on_gitter-brightgreen.svg?style=flat&logo=gitter-white)](https://gitter.im/d3plus/) [![1.0 progress](https://img.shields.io/badge/1.0_progress-75%25-yellow.svg?style=flat)](https://github.com/d3plus/d3plus-timeline/projects/2)
+[![NPM Release](http://img.shields.io/npm/v/d3plus-timeline.svg?style=flat)](https://www.npmjs.org/package/d3plus-timeline) [![Build Status](https://travis-ci.org/d3plus/d3plus-timeline.svg?branch=master)](https://travis-ci.org/d3plus/d3plus-timeline) [![Dependency Status](http://img.shields.io/david/d3plus/d3plus-timeline.svg?style=flat)](https://david-dm.org/d3plus/d3plus-timeline) [![Gitter](https://img.shields.io/badge/-chat_on_gitter-brightgreen.svg?style=flat&logo=gitter-white)](https://gitter.im/d3plus/)
 
 An easy-to-use javascript timeline.
 
 ## Installing
 
-If you use NPM, run `npm install d3plus-timeline --save`. Otherwise, download the [latest release](https://github.com/d3plus/d3plus-timeline/releases/latest). The released bundle supports AMD, CommonJS, and vanilla environments. You can also load directly from [d3plus.org](https://d3plus.org):
+If you use NPM, `npm install d3plus-timeline`. Otherwise, download the [latest release](https://github.com/d3plus/d3plus-timeline/releases/latest). You can also load d3plus-timeline as a standalone library or as part of [D3plus](https://github.com/d3plus/d3plus). ES modules, AMD, CommonJS, and vanilla environments are supported. In vanilla, a `d3plus` global is exported:
 
 ```html
-<script src="https://d3plus.org/js/d3plus-timeline.v0.5.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/d3plus-timeline@1"></script>
+<script>
+  console.log(d3plus);
+</script>
 ```
 
 [width]: 400
@@ -43,7 +46,7 @@ new d3plus.Timeline()
 ---
 
 <a name="Timeline"></a>
-#### **Timeline** [<>](https://github.com/d3plus/d3plus-timeline/blob/master/src/Timeline.js#L14)
+#### **Timeline** [<>](https://github.com/d3plus/d3plus-timeline/blob/master/src/Timeline.js#L15)
 
 
 This is a global class, and extends all of the methods and functionality of [<code>Axis</code>](https://github.com/d3plus/d3plus-axis#Axis).
@@ -65,7 +68,7 @@ This is a global class, and extends all of the methods and functionality of [<co
     * [.snapping([*value*])](#Timeline.snapping) ↩︎
 
 
-<a name="Timeline.render" href="#Timeline.render">#</a> Timeline.**render**([*callback*]) [<>](https://github.com/d3plus/d3plus-timeline/blob/master/src/Timeline.js#L241)
+<a name="Timeline.render" href="#Timeline.render">#</a> Timeline.**render**([*callback*]) [<>](https://github.com/d3plus/d3plus-timeline/blob/master/src/Timeline.js#L242)
 
 Draws the timeline.
 
@@ -73,7 +76,7 @@ Draws the timeline.
 This is a static method of [<code>Timeline</code>](#Timeline), and is chainable with other methods of this Class.
 
 
-<a name="Timeline.buttonPadding" href="#Timeline.buttonPadding">#</a> Timeline.**buttonPadding**([*value*]) [<>](https://github.com/d3plus/d3plus-timeline/blob/master/src/Timeline.js#L351)
+<a name="Timeline.buttonPadding" href="#Timeline.buttonPadding">#</a> Timeline.**buttonPadding**([*value*]) [<>](https://github.com/d3plus/d3plus-timeline/blob/master/src/Timeline.js#L352)
 
 If *value* is specified, sets the button padding and returns the current class instance. If *value* is not specified, returns the current button padding.
 
@@ -81,7 +84,7 @@ If *value* is specified, sets the button padding and returns the current class i
 This is a static method of [<code>Timeline</code>](#Timeline), and is chainable with other methods of this Class.
 
 
-<a name="Timeline.brushing" href="#Timeline.brushing">#</a> Timeline.**brushing**([*value*]) [<>](https://github.com/d3plus/d3plus-timeline/blob/master/src/Timeline.js#L361)
+<a name="Timeline.brushing" href="#Timeline.brushing">#</a> Timeline.**brushing**([*value*]) [<>](https://github.com/d3plus/d3plus-timeline/blob/master/src/Timeline.js#L362)
 
 If *value* is specified, toggles the brushing value and returns the current class instance. If *value* is not specified, returns the current brushing value.
 
@@ -89,7 +92,7 @@ If *value* is specified, toggles the brushing value and returns the current clas
 This is a static method of [<code>Timeline</code>](#Timeline), and is chainable with other methods of this Class.
 
 
-<a name="Timeline.brushFilter" href="#Timeline.brushFilter">#</a> Timeline.**brushFilter**([*value*]) [<>](https://github.com/d3plus/d3plus-timeline/blob/master/src/Timeline.js#L375)
+<a name="Timeline.brushFilter" href="#Timeline.brushFilter">#</a> Timeline.**brushFilter**([*value*]) [<>](https://github.com/d3plus/d3plus-timeline/blob/master/src/Timeline.js#L376)
 
 If *value* is specified, sets the brush event filter and returns the current class instance. If *value* is not specified, returns the current brush event filter.
 
@@ -104,7 +107,7 @@ function() {
 ```
 
 
-<a name="Timeline.buttonAlign" href="#Timeline.buttonAlign">#</a> Timeline.**buttonAlign**([*value*]) [<>](https://github.com/d3plus/d3plus-timeline/blob/master/src/Timeline.js#L385)
+<a name="Timeline.buttonAlign" href="#Timeline.buttonAlign">#</a> Timeline.**buttonAlign**([*value*]) [<>](https://github.com/d3plus/d3plus-timeline/blob/master/src/Timeline.js#L386)
 
 If *value* is specified, toggles the horizontal alignment of the button timeline. Accepted values are `"start"`, `"middle"` and `"end"`. If *value* is not specified, returns the current button value.
 
@@ -112,7 +115,7 @@ If *value* is specified, toggles the horizontal alignment of the button timeline
 This is a static method of [<code>Timeline</code>](#Timeline), and is chainable with other methods of this Class.
 
 
-<a name="Timeline.buttonBehavior" href="#Timeline.buttonBehavior">#</a> Timeline.**buttonBehavior**([*value*]) [<>](https://github.com/d3plus/d3plus-timeline/blob/master/src/Timeline.js#L395)
+<a name="Timeline.buttonBehavior" href="#Timeline.buttonBehavior">#</a> Timeline.**buttonBehavior**([*value*]) [<>](https://github.com/d3plus/d3plus-timeline/blob/master/src/Timeline.js#L396)
 
 If *value* is specified, toggles the style of the timeline. Accepted values are `"auto"`, `"buttons"` and `"ticks"`. If *value* is not specified, returns the current button value.
 
@@ -120,7 +123,7 @@ If *value* is specified, toggles the style of the timeline. Accepted values are 
 This is a static method of [<code>Timeline</code>](#Timeline), and is chainable with other methods of this Class.
 
 
-<a name="Timeline.buttonHeight" href="#Timeline.buttonHeight">#</a> Timeline.**buttonHeight**([*value*]) [<>](https://github.com/d3plus/d3plus-timeline/blob/master/src/Timeline.js#L405)
+<a name="Timeline.buttonHeight" href="#Timeline.buttonHeight">#</a> Timeline.**buttonHeight**([*value*]) [<>](https://github.com/d3plus/d3plus-timeline/blob/master/src/Timeline.js#L406)
 
 If *value* is specified, sets the button height and returns the current class instance. If *value* is not specified, returns the current button height.
 
@@ -128,7 +131,7 @@ If *value* is specified, sets the button height and returns the current class in
 This is a static method of [<code>Timeline</code>](#Timeline), and is chainable with other methods of this Class.
 
 
-<a name="Timeline.handleConfig" href="#Timeline.handleConfig">#</a> Timeline.**handleConfig**([*value*]) [<>](https://github.com/d3plus/d3plus-timeline/blob/master/src/Timeline.js#L415)
+<a name="Timeline.handleConfig" href="#Timeline.handleConfig">#</a> Timeline.**handleConfig**([*value*]) [<>](https://github.com/d3plus/d3plus-timeline/blob/master/src/Timeline.js#L416)
 
 If *value* is specified, sets the handle style and returns the current class instance. If *value* is not specified, returns the current handle style.
 
@@ -136,7 +139,7 @@ If *value* is specified, sets the handle style and returns the current class ins
 This is a static method of [<code>Timeline</code>](#Timeline), and is chainable with other methods of this Class.
 
 
-<a name="Timeline.handleSize" href="#Timeline.handleSize">#</a> Timeline.**handleSize**([*value*]) [<>](https://github.com/d3plus/d3plus-timeline/blob/master/src/Timeline.js#L425)
+<a name="Timeline.handleSize" href="#Timeline.handleSize">#</a> Timeline.**handleSize**([*value*]) [<>](https://github.com/d3plus/d3plus-timeline/blob/master/src/Timeline.js#L426)
 
 If *value* is specified, sets the handle size and returns the current class instance. If *value* is not specified, returns the current handle size.
 
@@ -144,7 +147,7 @@ If *value* is specified, sets the handle size and returns the current class inst
 This is a static method of [<code>Timeline</code>](#Timeline), and is chainable with other methods of this Class.
 
 
-<a name="Timeline.on" href="#Timeline.on">#</a> Timeline.**on**([*typename*], [*listener*]) [<>](https://github.com/d3plus/d3plus-timeline/blob/master/src/Timeline.js#L436)
+<a name="Timeline.on" href="#Timeline.on">#</a> Timeline.**on**([*typename*], [*listener*]) [<>](https://github.com/d3plus/d3plus-timeline/blob/master/src/Timeline.js#L437)
 
 Adds or removes a *listener* for the specified brush event *typename*. If a *listener* is not specified, returns the currently-assigned listener for the specified event *typename*. Mirrors the core [d3-brush](https://github.com/d3/d3-brush#brush_on) behavior.
 
@@ -158,7 +161,7 @@ This is a static method of [<code>Timeline</code>](#Timeline), and is chainable 
 
 
 
-<a name="Timeline.selectionConfig" href="#Timeline.selectionConfig">#</a> Timeline.**selectionConfig**([*value*]) [<>](https://github.com/d3plus/d3plus-timeline/blob/master/src/Timeline.js#L446)
+<a name="Timeline.selectionConfig" href="#Timeline.selectionConfig">#</a> Timeline.**selectionConfig**([*value*]) [<>](https://github.com/d3plus/d3plus-timeline/blob/master/src/Timeline.js#L447)
 
 If *value* is specified, sets the selection style and returns the current class instance. If *value* is not specified, returns the current selection style.
 
@@ -166,7 +169,7 @@ If *value* is specified, sets the selection style and returns the current class 
 This is a static method of [<code>Timeline</code>](#Timeline), and is chainable with other methods of this Class.
 
 
-<a name="Timeline.selection" href="#Timeline.selection">#</a> Timeline.**selection**([*value*]) [<>](https://github.com/d3plus/d3plus-timeline/blob/master/src/Timeline.js#L456)
+<a name="Timeline.selection" href="#Timeline.selection">#</a> Timeline.**selection**([*value*]) [<>](https://github.com/d3plus/d3plus-timeline/blob/master/src/Timeline.js#L457)
 
 If *value* is specified, sets the selection and returns the current class instance. If *value* is not specified, returns the current selection. Defaults to the most recent year in the timeline.
 
@@ -174,7 +177,7 @@ If *value* is specified, sets the selection and returns the current class instan
 This is a static method of [<code>Timeline</code>](#Timeline), and is chainable with other methods of this Class.
 
 
-<a name="Timeline.snapping" href="#Timeline.snapping">#</a> Timeline.**snapping**([*value*]) [<>](https://github.com/d3plus/d3plus-timeline/blob/master/src/Timeline.js#L466)
+<a name="Timeline.snapping" href="#Timeline.snapping">#</a> Timeline.**snapping**([*value*]) [<>](https://github.com/d3plus/d3plus-timeline/blob/master/src/Timeline.js#L467)
 
 If *value* is specified, toggles the snapping value and returns the current class instance. If *value* is not specified, returns the current snapping value.
 
@@ -185,4 +188,4 @@ This is a static method of [<code>Timeline</code>](#Timeline), and is chainable 
 
 
 
-###### <sub>Documentation generated on Tue, 14 Jul 2020 20:57:23 GMT</sub>
+###### <sub>Documentation generated on Tue, 02 Feb 2021 21:39:38 GMT</sub>
