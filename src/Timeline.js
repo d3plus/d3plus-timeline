@@ -5,9 +5,10 @@
 import {max} from "d3-array";
 import {brushX} from "d3-brush";
 import {scaleTime} from "d3-scale";
-import {event, mouse} from "d3-selection";
+import {pointer} from "d3-selection";
 
 import {Axis, date} from "d3plus-axis";
+import {colorDefaults} from "d3plus-color";
 import {attrize, closest, elem} from "d3plus-common";
 import {textWidth, textWrap} from "d3plus-text";
 
@@ -30,7 +31,7 @@ export default class Timeline extends Axis {
       "stroke-width": () => this._buttonBehaviorCurrent === "buttons" ? 0 : 1
     });
     this._brushing = true;
-    this._brushFilter = () => !event.button && event.detail < 2;
+    this._brushFilter = event => !event.button && event.detail < 2;
     this._buttonAlign = "middle";
     this._buttonBehavior = "auto";
     this._buttonPadding = 10;
@@ -38,7 +39,7 @@ export default class Timeline extends Axis {
     this._domain = [2001, 2010];
     this._gridSize = 0;
     this._handleConfig = {
-      fill: "#444"
+      fill: colorDefaults.dark
     };
     this._handleSize = 6;
     this._height = 100;
@@ -47,13 +48,13 @@ export default class Timeline extends Axis {
     this.orient("bottom");
     this._scale = "time";
     this._selectionConfig = {
-      "fill": "#777",
+      "fill": "#999",
       "stroke-width": 0
     };
     this._shape = "Rect";
     this._shapeConfig = Object.assign({}, this._shapeConfig, {
       labelBounds: d => this._buttonBehaviorCurrent === "buttons" ? {x: d.labelBounds.x, y: -5, width: d.labelBounds.width, height: this._buttonHeight} : d.labelBounds,
-      fill: () => this._buttonBehaviorCurrent === "buttons" ? "#EEE" : "#444",
+      fill: () => this._buttonBehaviorCurrent === "buttons" ? colorDefaults.light : colorDefaults.dark,
       height: d => this._buttonBehaviorCurrent === "buttons" ? this._buttonHeight : d.tick ? 10 : 0,
       width: d => this._buttonBehaviorCurrent === "buttons" ? this._ticksWidth / this._availableTicks.length : d.tick ? this._domain.map(t => date(t).getTime()).includes(d.id) ? 2 : 1 : 0,
       y: d => this._buttonBehaviorCurrent === "buttons" ? this._align === "middle" ? this._height / 2 : this._align === "start" ? this._margin.top + this._buttonHeight / 2 : this._height - this._buttonHeight / 2 - this._margin.bottom : d.y
@@ -68,11 +69,11 @@ export default class Timeline extends Axis {
       @desc Triggered on brush "brush".
       @private
   */
-  _brushBrush() {
+  _brushBrush(event) {
 
     if (event.sourceEvent && event.sourceEvent.offsetX && event.selection !== null && (!this._brushing || this._snapping)) {
 
-      const domain = this._updateDomain();
+      const domain = this._updateDomain(event);
 
       this._brushGroup.call(this._brush.move, this._updateBrushLimit(domain));
 
@@ -88,11 +89,11 @@ export default class Timeline extends Axis {
       @desc Triggered on brush "end".
       @private
   */
-  _brushEnd() {
+  _brushEnd(event) {
 
     if (!event.sourceEvent) return; // Only transition after input.
 
-    const domain = this._updateDomain();
+    const domain = this._updateDomain(event);
 
     this._brushStyle();
 
@@ -107,17 +108,17 @@ export default class Timeline extends Axis {
       @desc Triggered on brush "start".
       @private
   */
-  _brushStart() {
+  _brushStart(event) {
 
     if (event.sourceEvent !== null && (!this._brushing || this._snapping)) {
 
-      const domain = this._updateDomain();
+      const domain = this._updateDomain(event);
       this._brushGroup.call(this._brush.move, this._updateBrushLimit(domain));
 
     }
 
     this._brushStyle();
-    if (this._on.start) this._on.start();
+    if (this._on.start) this._on.start(event);
 
   }
 
@@ -165,9 +166,9 @@ export default class Timeline extends Axis {
       @desc Updates domain of the timeline used in brush functions.
       @private
   */
-  _updateDomain() {
+  _updateDomain(event) {
 
-    const x = mouse(this._select.node())[0];
+    const x = pointer(event, this._select.node())[0];
     let domain = event.selection && this._brushing ? event.selection : [x, x];
 
     if (this._buttonBehaviorCurrent === "ticks") domain = domain.map(this._d3Scale.invert);
