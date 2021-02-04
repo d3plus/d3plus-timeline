@@ -36,6 +36,7 @@ export default class Timeline extends Axis {
     this._buttonBehavior = "auto";
     this._buttonPadding = 10;
     this._buttonHeight = 30;
+    this._dateParser = date;
     this._domain = [2001, 2010];
     this._gridSize = 0;
     this._handleConfig = {
@@ -56,7 +57,7 @@ export default class Timeline extends Axis {
       labelBounds: d => this._buttonBehaviorCurrent === "buttons" ? {x: d.labelBounds.x, y: -5, width: d.labelBounds.width, height: this._buttonHeight} : d.labelBounds,
       fill: () => this._buttonBehaviorCurrent === "buttons" ? colorDefaults.light : colorDefaults.dark,
       height: d => this._buttonBehaviorCurrent === "buttons" ? this._buttonHeight : d.tick ? 10 : 0,
-      width: d => this._buttonBehaviorCurrent === "buttons" ? this._ticksWidth / this._availableTicks.length : d.tick ? this._domain.map(t => date(t).getTime()).includes(d.id) ? 2 : 1 : 0,
+      width: d => this._buttonBehaviorCurrent === "buttons" ? this._ticksWidth / this._availableTicks.length : d.tick ? this._domain.map(t => t instanceof Date ? t.getTime() : this._dateParser(t).getTime()).includes(d.id) ? 2 : 1 : 0,
       y: d => this._buttonBehaviorCurrent === "buttons" ? this._align === "middle" ? this._height / 2 : this._align === "start" ? this._margin.top + this._buttonHeight / 2 : this._height - this._buttonHeight / 2 - this._margin.bottom : d.y
     });
     this._snapping = true;
@@ -242,14 +243,15 @@ export default class Timeline extends Axis {
   render(callback) {
     const {height, y} = this._position;
 
+    if (this._ticks) this._ticks = this._ticks.map(this._dateParser);
+
     if (this._buttonBehavior !== "ticks") {
 
-      let ticks = this._ticks ? this._ticks.map(date) : this._domain.map(date);
+      let ticks = (this._ticks || this._domain).map(this._dateParser);
 
       const d3Scale = scaleTime().domain(ticks).range([0, this._width]);
 
-      ticks = this._ticks ? ticks : d3Scale.ticks();
-
+      if (!this._ticks && this._domain.length === 2) ticks = d3Scale.ticks();
       if (!this._tickFormat) this._tickFormat = d3Scale.tickFormat(ticks.length - 1, this._tickSpecifier);
 
       // Measures size of ticks
@@ -280,9 +282,8 @@ export default class Timeline extends Axis {
       this._scale = "ordinal";
       this._labelRotation = 0;
       if (!this._brushing) this._handleSize = 0;
-      const domain = scaleTime().domain(this._domain.map(date)).ticks().map(this._tickFormat).map(Number);
-
-      this._domain = this._ticks ? this._ticks.map(date) : Array.from(Array(domain[domain.length - 1] - domain[0] + 1), (_, x) => domain[0] + x).map(date);
+      const domain = scaleTime().domain(this._domain.map(this._dateParser)).ticks().map(this._tickFormat).map(Number);
+      this._domain = this._ticks ? this._ticks.map(this._dateParser) : Array.from(Array(domain[domain.length - 1] - domain[0] + 1), (_, x) => domain[0] + x).map(date);
 
       this._ticks = this._domain;
 
@@ -302,6 +303,7 @@ export default class Timeline extends Axis {
       ];
     }
 
+    if (this._domain && this._domain.length > 2 && !this._ticks) this._ticks = this._domain.map(this._dateParser);
     if (this._ticks) this._domain = this._buttonBehaviorCurrent === "ticks" ? [this._ticks[0], this._ticks[this._ticks.length - 1]] : this._ticks.map(date);
 
     this._labels = this._ticks;
@@ -409,6 +411,16 @@ function() {
 
   /**
       @memberof Timeline
+      @desc If *value* is specified, overrides the behavior of date function for parsing the ticks.
+      @param {Function} [*value* = undefined]
+      @chainable
+  */
+  dateParser(_) {
+    return arguments.length ? (this._dateParser = _, this) : this._dateParser;
+  }
+
+  /**
+      @memberof Timeline
       @desc If *value* is specified, sets the handle style and returns the current class instance. If *value* is not specified, returns the current handle style.
       @param {Object} [*value*]
       @chainable
@@ -467,5 +479,6 @@ function() {
   snapping(_) {
     return arguments.length ? (this._snapping = _, this) : this._snapping;
   }
+
 
 }
