@@ -32,6 +32,7 @@ export default class Timeline extends Axis {
     });
     this._brushing = true;
     this._brushFilter = event => !event.button && event.detail < 2;
+    this._brushMin = 1;
     this._buttonAlign = "middle";
     this._buttonBehavior = "auto";
     this._buttonPadding = 10;
@@ -188,8 +189,23 @@ export default class Timeline extends Axis {
       : this._d3Scale.range();
 
     if (this._buttonBehaviorCurrent === "ticks") {
-      domain[0] = date(closest(domain[0], ticks));
-      domain[1] = date(closest(domain[1], ticks));
+
+      // find closes min and max ticks from data
+      let minDomain = date(closest(domain[0], ticks));
+      const minIndex = ticks.indexOf(+minDomain);
+      let maxDomain = date(closest(domain[1], ticks));
+      const maxIndex = ticks.indexOf(+maxDomain);
+
+      // if min and max are underneath the brushMin threshold,
+      // then determine new min/max values
+      if (Math.abs(maxIndex - minIndex) < this._brushMin - 1) {
+        if (domain[0] < domain[1] && minIndex > 0) minDomain = ticks[minIndex - 1];
+        else maxDomain = ticks[maxIndex + 1];
+      }
+
+      domain[0] = minDomain;
+      domain[1] = maxDomain;
+
     }
     else {
       domain[0] = closest(domain[0], ticks);
@@ -242,15 +258,14 @@ export default class Timeline extends Axis {
   render(callback) {
     const {height, y} = this._position;
 
-    if (this._buttonBehavior !== "ticks") {
+    this._buttonBehaviorCurrent = this._buttonBehavior === "auto" ? this._ticksWidth < this._width ? "buttons" : "ticks" : this._buttonBehavior;
+
+    if (this._buttonBehaviorCurrent === "buttons") {
 
       let ticks = this._ticks ? this._ticks.map(date) : this._domain.map(date);
-
       const d3Scale = scaleTime().domain(ticks).range([0, this._width]);
 
       ticks = this._ticks ? ticks : d3Scale.ticks();
-
-      if (!this._tickFormat) this._tickFormat = d3Scale.tickFormat(ticks.length - 1, this._tickSpecifier);
 
       // Measures size of ticks
       let maxLabel = 0;
@@ -272,14 +287,11 @@ export default class Timeline extends Axis {
       });
 
       this._ticksWidth = maxLabel * ticks.length;
-    }
 
-    this._buttonBehaviorCurrent = this._buttonBehavior === "auto" ? this._ticksWidth < this._width ? "buttons" : "ticks" : this._buttonBehavior;
-
-    if (this._buttonBehaviorCurrent === "buttons") {
       this._scale = "ordinal";
       this._labelRotation = 0;
       if (!this._brushing) this._handleSize = 0;
+      if (!this._tickFormat) this._tickFormat = d3Scale.tickFormat(ticks.length - 1, this._tickSpecifier);
       const domain = scaleTime().domain(this._domain.map(date)).ticks().map(this._tickFormat).map(Number);
 
       this._domain = this._ticks ? this._ticks.map(date) : Array.from(Array(domain[domain.length - 1] - domain[0] + 1), (_, x) => domain[0] + x).map(date);
@@ -319,14 +331,25 @@ export default class Timeline extends Axis {
       .on("brush", this._brushBrush.bind(this))
       .on("end", this._brushEnd.bind(this));
 
-    const latest = this._buttonBehaviorCurrent === "ticks"
-      ? this._availableTicks[this._availableTicks.length - 1]
-      : range[range.length - 1];
+    // data Array to be used when detecting the default value
+    const defaultData = this._buttonBehaviorCurrent === "ticks"
+      ? this._availableTicks
+      : range;
 
-    const selection = this._selection === void 0 ? [latest, latest]
+    // the default selection, if needed
+    const defaultSelection = [
+      this._brushMin > defaultData.length
+        ? defaultData[0]
+        : defaultData[defaultData.length - this._brushMin],
+      defaultData[defaultData.length - 1]
+    ];
+
+    // the current selection, considering user input, defaults, and data
+    const selection = this._selection === void 0 ? defaultSelection
       : this._selection instanceof Array
         ? this._buttonBehaviorCurrent === "buttons"
-          ? this._selection.map(d => range[this._ticks.map(Number).indexOf(+d)]).slice() : this._selection.slice()
+          ? this._selection.map(d => range[this._ticks.map(Number).indexOf(+d)]).slice()
+          : this._selection.slice()
         : this._buttonBehaviorCurrent === "buttons"
           ? [range[this._ticks.map(Number).indexOf(+this._selection)], range[this._ticks.map(Number).indexOf(+this._selection)]]
           : [this._selection, this._selection];
@@ -375,6 +398,16 @@ function() {
   */
   brushFilter(_) {
     return arguments.length ? (this._brushFilter = _, this) : this._brushFilter;
+  }
+
+  /**
+      @memberof Timeline
+      @desc Sets the minimum number of "ticks" to allow to be highlighted when using "ticks" buttonBehavior. Helpful when using x/y plots where you don't want the user to select less than 2 time periods.
+      @param {Number} [*value* = 1]
+      @chainable
+  */
+  brushMin(_) {
+    return arguments.length ? (this._brushMin = _, this) : this._brushMin;
   }
 
   /**
