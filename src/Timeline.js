@@ -2,7 +2,7 @@
     @external Axis
     @see https://github.com/d3plus/d3plus-axis#Axis
 */
-import {max} from "d3-array";
+import {max, min} from "d3-array";
 import {brushX} from "d3-brush";
 import {scaleTime} from "d3-scale";
 import {pointer} from "d3-selection";
@@ -190,17 +190,37 @@ export default class Timeline extends Axis {
 
     if (this._buttonBehaviorCurrent === "ticks") {
 
-      // find closes min and max ticks from data
+      // find closest min and max ticks from data
+      // and their indices in the ticks Array
       let minDomain = date(closest(domain[0], ticks));
-      const minIndex = ticks.indexOf(+minDomain);
+      let minIndex = ticks.indexOf(+minDomain);
       let maxDomain = date(closest(domain[1], ticks));
-      const maxIndex = ticks.indexOf(+maxDomain);
+      let maxIndex = ticks.indexOf(+maxDomain);
 
-      // if min and max are underneath the brushMin threshold,
-      // then determine new min/max values
-      if (Math.abs(maxIndex - minIndex) < this._brushMin - 1) {
-        if (domain[0] < domain[1] && minIndex > 0) minDomain = ticks[minIndex - 1];
-        else maxDomain = ticks[maxIndex + 1];
+      // using the indices, determine if the 2 ends of the brush
+      // are too close to each other. "ticksApart" always needs to
+      // be less than the current current brushMin minus 1. For
+      // example, a brushMin of "2" means that the min and max domain
+      // values need to be "1" space apart from eachother.
+      let ticksApart = Math.abs(maxIndex - minIndex);
+      const minTicksAllowed = this._brushMin - 1;
+
+      // if the min and max are not far enough apart to satisfy
+      // brushMin, then forcibly extend the domain.
+      if (ticksApart < minTicksAllowed) {
+
+        // push the maxDomain out as far as possible to account for brushMin
+        maxIndex = min([ticks.length - 1, maxIndex + (minTicksAllowed - ticksApart)]);
+        maxDomain = ticks[maxIndex];
+        ticksApart = Math.abs(maxIndex - minIndex);
+
+        // if the domain is still not far enough apart, extent the minDomain
+        // as far as possible to allow for brushMin
+        if (ticksApart < minTicksAllowed) {
+          minIndex = max([0, minIndex - (minTicksAllowed - ticksApart)]);
+          minDomain = ticks[minIndex];
+        }
+
       }
 
       domain[0] = minDomain;
@@ -212,8 +232,8 @@ export default class Timeline extends Axis {
       domain[1] = closest(domain[1], ticks);
     }
 
+    // if the brush event has finished, update the current "selection" value
     const single = +domain[0] === +domain[1];
-
     if (event.type === "brush" || event.type === "end") {
       this._selection = this._buttonBehaviorCurrent === "ticks"
         ? single ? domain[0] : domain
