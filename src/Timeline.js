@@ -9,7 +9,7 @@ import {pointer} from "d3-selection";
 
 import {Axis, date} from "d3plus-axis";
 import {colorDefaults} from "d3plus-color";
-import {attrize, closest, elem} from "d3plus-common";
+import {attrize, constant, closest, elem} from "d3plus-common";
 import {textWidth, textWrap} from "d3plus-text";
 
 /**
@@ -32,7 +32,7 @@ export default class Timeline extends Axis {
     });
     this._brushing = true;
     this._brushFilter = event => !event.button && event.detail < 2;
-    this._brushMin = 1;
+    this._brushMin = constant(1);
     this._buttonAlign = "middle";
     this._buttonBehavior = "auto";
     this._buttonPadding = 10;
@@ -203,7 +203,7 @@ export default class Timeline extends Axis {
       // example, a brushMin of "2" means that the min and max domain
       // values need to be "1" space apart from eachother.
       let ticksApart = Math.abs(maxIndex - minIndex);
-      const minTicksAllowed = this._brushMin - 1;
+      const minTicksAllowed = this._brushMin() - 1;
 
       // if the min and max are not far enough apart to satisfy
       // brushMin, then forcibly extend the domain.
@@ -358,9 +358,9 @@ export default class Timeline extends Axis {
 
     // the default selection, if needed
     const defaultSelection = [
-      this._brushMin > defaultData.length
+      this._brushMin() > defaultData.length
         ? defaultData[0]
-        : defaultData[defaultData.length - this._brushMin],
+        : defaultData[defaultData.length - this._brushMin()],
       defaultData[defaultData.length - 1]
     ];
 
@@ -422,12 +422,12 @@ function() {
 
   /**
       @memberof Timeline
-      @desc Sets the minimum number of "ticks" to allow to be highlighted when using "ticks" buttonBehavior. Helpful when using x/y plots where you don't want the user to select less than 2 time periods.
-      @param {Number} [*value* = 1]
+      @desc Sets the minimum number of "ticks" to allow to be highlighted when using "ticks" buttonBehavior. Helpful when using x/y plots where you don't want the user to select less than 2 time periods. Value passed can either be a static Number, or a function that is expected to return a Number.
+      @param {Number|Function} [*value* = 1]
       @chainable
   */
   brushMin(_) {
-    return arguments.length ? (this._brushMin = _, this) : this._brushMin;
+    return arguments.length ? (this._brushMin = typeof _ === "function" ? _ : constant(_), this) : this._brushMin;
   }
 
   /**
