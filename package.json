@@ -1,6 +1,6 @@
 {
   "name": "d3plus-timeline",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "An easy-to-use javascript timeline.",
   "main": "build/d3plus-timeline.full.js",
   "jsnext:main": "es/index",
