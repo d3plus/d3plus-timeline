@@ -27,7 +27,7 @@
     "d3-selection": "^2.0.0",
     "d3plus-axis": "^1.1.3",
     "d3plus-color": "^1.0.0",
-    "d3plus-common": "^1.1.0"
+    "d3plus-common": "^1.1.1"
   },
   "scripts": {
     "build": "d3plus-build",
