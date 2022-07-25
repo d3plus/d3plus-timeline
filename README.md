@@ -87,7 +87,7 @@ function() {
 
 <a name="Timeline.brushMin" href="#Timeline.brushMin">#</a> Timeline.**brushMin**([*value*]) [<>](https://github.com/d3plus/d3plus-timeline/blob/master/src/Timeline.js#L429)
 
-Sets the minimum number of "ticks" to allow to be highlighted when using "ticks" buttonBehavior. Helpful when using x/y plots where you don't want the user to select less than 2 time periods.
+Sets the minimum number of "ticks" to allow to be highlighted when using "ticks" buttonBehavior. Helpful when using x/y plots where you don't want the user to select less than 2 time periods. Value passed can either be a static Number, or a function that is expected to return a Number.
 
 
 This is a static method of [<code>Timeline</code>](#Timeline), and is chainable with other methods of this Class.
@@ -174,4 +174,4 @@ This is a static method of [<code>Timeline</code>](#Timeline), and is chainable 
 
 
 
-###### <sub>Documentation generated on Tue, 19 Jul 2022 21:14:22 GMT</sub>
+###### <sub>Documentation generated on Mon, 25 Jul 2022 20:38:59 GMT</sub>
