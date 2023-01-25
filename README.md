@@ -1,12 +1,16 @@
 # d3plus-timeline
 
-[![NPM Release](http://img.shields.io/npm/v/d3plus-timeline.svg?style=flat)](https://www.npmjs.org/package/d3plus-timeline) [![Build Status](https://travis-ci.org/d3plus/d3plus-timeline.svg?branch=master)](https://travis-ci.org/d3plus/d3plus-timeline) [![Dependency Status](http://img.shields.io/david/d3plus/d3plus-timeline.svg?style=flat)](https://david-dm.org/d3plus/d3plus-timeline) [![Gitter](https://img.shields.io/badge/-chat_on_gitter-brightgreen.svg?style=flat&logo=gitter-white)](https://gitter.im/d3plus/)
-
 An easy-to-use javascript timeline.
 
 ## Installing
 
-If you use NPM, `npm install d3plus-timeline`. Otherwise, download the [latest release](https://github.com/d3plus/d3plus-timeline/releases/latest). You can also load d3plus-timeline as a standalone library or as part of [D3plus](https://github.com/d3plus/d3plus). ES modules, AMD, CommonJS, and vanilla environments are supported. In vanilla, a `d3plus` global is exported:
+If using npm, `npm install d3plus-timeline`. Otherwise, you can download the [latest release from GitHub](https://github.com/d3plus/d3plus-timeline/releases/latest) or load from a [CDN](https://cdn.jsdelivr.net/npm/d3plus-timeline@1).
+
+```js
+import modules from "d3plus-timeline";
+```
+
+d3plus-timeline can be loaded as a standalone library or bundled as part of [D3plus](https://github.com/d3plus/d3plus). ES modules, AMD, CommonJS, and vanilla environments are supported. In vanilla, a `d3plus` global is exported:
 
 ```html
 <script src="https://cdn.jsdelivr.net/npm/d3plus-timeline@1"></script>
@@ -14,6 +18,10 @@ If you use NPM, `npm install d3plus-timeline`. Otherwise, download the [latest r
   console.log(d3plus);
 </script>
 ```
+
+## Examples
+
+Live examples can be found on [d3plus.org](https://d3plus.org/), which includes a collection of example visualizations using [d3plus-react](https://github.com/d3plus/d3plus-react/). These examples are powered by the [d3plus-storybook](https://github.com/d3plus/d3plus-storybook/) repo, and PRs are always welcome. :beers:
 
 ## API Reference
 
@@ -174,4 +182,4 @@ This is a static method of [<code>Timeline</code>](#Timeline), and is chainable 
 
 
 
-###### <sub>Documentation generated on Mon, 25 Jul 2022 20:38:59 GMT</sub>
+###### <sub>Documentation generated on Wed, 25 Jan 2023 13:05:51 GMT</sub>
