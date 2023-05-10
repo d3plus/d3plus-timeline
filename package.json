@@ -25,9 +25,10 @@
   "dependencies": {
     "d3-brush": "^3.0.0",
     "d3-selection": "^3.0.0",
-    "d3plus-axis": "^1.2.1",
+    "d3plus-axis": "^1.2.8",
     "d3plus-color": "^1.1.2",
-    "d3plus-common": "^1.2.4"
+    "d3plus-common": "^1.2.4",
+    "d3plus-format": "^1.2.4"
   },
   "scripts": {
     "build": "d3plus-build",
@@ -38,7 +39,7 @@
     "test": "eslint src test && mocha 'test/**/*-test.js'"
   },
   "devDependencies": {
-    "d3plus-dev": "^1.2.8"
+    "d3plus-dev": "^1.2.9"
   },
   "module": "es/index.js",
   "sideEffects": false,
