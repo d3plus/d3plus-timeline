@@ -2,14 +2,15 @@
     @external Axis
     @see https://github.com/d3plus/d3plus-axis#Axis
 */
-import {max, min} from "d3-array";
+import {extent, max, min} from "d3-array";
 import {brushX} from "d3-brush";
 import {scaleTime} from "d3-scale";
 import {pointer} from "d3-selection";
 
 import {Axis, date} from "d3plus-axis";
 import {colorDefaults} from "d3plus-color";
-import {attrize, constant, closest, elem} from "d3plus-common";
+import {assign, attrize, constant, closest, elem} from "d3plus-common";
+import {formatDate} from "d3plus-format";
 import {textWidth, textWrap} from "d3plus-text";
 
 /**
@@ -53,8 +54,11 @@ export default class Timeline extends Axis {
       "stroke-width": 0
     };
     this._shape = "Rect";
-    this._shapeConfig = Object.assign({}, this._shapeConfig, {
-      labelBounds: d => this._buttonBehaviorCurrent === "buttons" ? {x: d.labelBounds.x, y: -5, width: d.labelBounds.width, height: this._buttonHeight} : d.labelBounds,
+    this._shapeConfig = assign({}, this._shapeConfig, {
+      labelBounds: d => this._buttonBehaviorCurrent === "buttons" ? {x: d.labelBounds.x, y: -this._buttonHeight / 2, width: d.labelBounds.width, height: this._buttonHeight} : d.labelBounds,
+      labelConfig: {
+        verticalAlign: () => this._buttonBehaviorCurrent === "buttons" ? "middle" : "top"
+      },
       fill: () => this._buttonBehaviorCurrent === "buttons" ? colorDefaults.light : colorDefaults.dark,
       height: d => this._buttonBehaviorCurrent === "buttons" ? this._buttonHeight : d.tick ? 10 : 0,
       width: d => this._buttonBehaviorCurrent === "buttons" ? this._ticksWidth / this._availableTicks.length : d.tick ? this._domain.map(t => date(t).getTime()).includes(d.id) ? 2 : 1 : 0,
@@ -278,43 +282,49 @@ export default class Timeline extends Axis {
   render(callback) {
     const {height, y} = this._position;
 
+    let ticks = this._ticks ? this._ticks.map(date) : this._domain.map(date);
+    const d3Scale = scaleTime().domain(ticks).range([0, this._width]);
+
+    ticks = this._ticks ? ticks : d3Scale.ticks();
+
+    const tickFormat = this._tickFormat = this._tickFormat ? this._tickFormat : d => formatDate(d, ticks);
+
+    // Measures size of ticks
+    let maxLabel = 0;
+    ticks.forEach((d, i) => {
+
+      const f = this._shapeConfig.labelConfig.fontFamily(d, i),
+            s = this._shapeConfig.labelConfig.fontSize(d, i);
+
+      const wrap = textWrap()
+        .fontFamily(f)
+        .fontSize(s)
+        .lineHeight(this._shapeConfig.lineHeight ? this._shapeConfig.lineHeight(d, i) : undefined);
+
+      const res = wrap(tickFormat(d));
+      
+      let width = res.lines.length
+        ? Math.ceil(max(res.lines.map(line => textWidth(line, {"font-family": f, "font-size": s})))) + s / 4
+        : 0;
+
+      if (width % 2) width++;
+      if (maxLabel < width) maxLabel = width + 2 * this._buttonPadding;
+
+    });
+
+    this._ticksWidth = maxLabel * ticks.length;
+
     this._buttonBehaviorCurrent = this._buttonBehavior === "auto" ? this._ticksWidth < this._width ? "buttons" : "ticks" : this._buttonBehavior;
+    if (this._ticks) this._ticks = this._ticks.map(date);
 
     if (this._buttonBehaviorCurrent === "buttons") {
-
-      let ticks = this._ticks ? this._ticks.map(date) : this._domain.map(date);
-      const d3Scale = scaleTime().domain(ticks).range([0, this._width]);
-
-      ticks = this._ticks ? ticks : d3Scale.ticks();
-
-      // Measures size of ticks
-      let maxLabel = 0;
-      ticks.forEach((d, i) => {
-        const f = this._shapeConfig.labelConfig.fontFamily(d, i),
-              s = this._shapeConfig.labelConfig.fontSize(d, i);
-
-        const wrap = textWrap()
-          .fontFamily(f)
-          .fontSize(s)
-          .lineHeight(this._shapeConfig.lineHeight ? this._shapeConfig.lineHeight(d, i) : undefined);
-
-        const res = wrap(d3Scale.tickFormat(ticks.length - 1, this._tickSpecifier)(d));
-        let width = res.lines.length
-          ? Math.ceil(max(res.lines.map(line => textWidth(line, {"font-family": f, "font-size": s})))) + s / 4
-          : 0;
-        if (width % 2) width++;
-        if (maxLabel < width) maxLabel = width + 2 * this._buttonPadding;
-      });
-
-      this._ticksWidth = maxLabel * ticks.length;
 
       this._scale = "ordinal";
       this._labelRotation = 0;
       if (!this._brushing) this._handleSize = 0;
-      if (!this._tickFormat) this._tickFormat = d3Scale.tickFormat(ticks.length - 1, this._tickSpecifier);
-      const domain = scaleTime().domain(this._domain.map(date)).ticks().map(this._tickFormat).map(Number);
+      const domain = scaleTime().domain(this._domain.map(date)).ticks().map(Number);
 
-      this._domain = this._ticks ? this._ticks.map(date) : Array.from(Array(domain[domain.length - 1] - domain[0] + 1), (_, x) => domain[0] + x).map(date);
+      this._domain = this._ticks ? this._ticks : Array.from(Array(domain[domain.length - 1] - domain[0] + 1), (_, x) => domain[0] + x).map(date);
 
       this._ticks = this._domain;
 
@@ -333,10 +343,9 @@ export default class Timeline extends Axis {
         this._buttonAlign === "end" ? undefined : marginRight - buttonMargin
       ];
     }
-
-    if (this._ticks) this._domain = this._buttonBehaviorCurrent === "ticks" ? [this._ticks[0], this._ticks[this._ticks.length - 1]] : this._ticks.map(date);
-
-    this._labels = this._ticks;
+    else {
+      this._labels = extent(ticks);
+    }
 
     super.render(callback);
 
@@ -373,7 +382,7 @@ export default class Timeline extends Axis {
         : this._buttonBehaviorCurrent === "buttons"
           ? [range[this._ticks.map(Number).indexOf(+this._selection)], range[this._ticks.map(Number).indexOf(+this._selection)]]
           : [this._selection, this._selection];
-
+          
     this._updateBrushLimit(selection);
 
     this._brushGroup = elem("g.brushGroup", {parent: this._group});
