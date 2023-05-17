@@ -5,7 +5,7 @@
 import {extent, max, min} from "d3-array";
 import {brushX} from "d3-brush";
 import {scaleTime} from "d3-scale";
-import {pointer} from "d3-selection";
+import {pointers} from "d3-selection";
 
 import {Axis, date} from "d3plus-axis";
 import {colorDefaults} from "d3plus-color";
@@ -173,8 +173,8 @@ export default class Timeline extends Axis {
   */
   _updateDomain(event) {
 
-    const x = pointer(event, this._select.node())[0];
-    let domain = event.selection && this._brushing ? event.selection : [x, x];
+    const x = pointers(event, this._select.node());
+    let domain = event.selection && this._brushing || !x.length ? event.selection : [x[0][0], x[0][0]];
 
     if (this._buttonBehaviorCurrent === "ticks") domain = domain.map(this._d3Scale.invert);
     domain = domain.map(Number);
