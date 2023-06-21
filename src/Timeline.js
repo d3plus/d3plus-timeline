@@ -7,8 +7,7 @@ import {brushX} from "d3-brush";
 import {scaleTime} from "d3-scale";
 import {pointers} from "d3-selection";
 
-import {Axis, date} from "d3plus-axis";
-import locale from "d3plus-axis/es/src/locale";
+import {Axis, date, locale} from "d3plus-axis";
 import {colorDefaults} from "d3plus-color";
 import {assign, attrize, constant, closest, elem} from "d3plus-common";
 import {formatDate} from "d3plus-format";
