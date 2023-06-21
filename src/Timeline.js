@@ -12,7 +12,7 @@ import locale from "d3plus-axis/es/src/locale";
 import {colorDefaults} from "d3plus-color";
 import {assign, attrize, constant, closest, elem} from "d3plus-common";
 import {formatDate} from "d3plus-format";
-import {textWidth, textWrap} from "d3plus-text";
+import {TextBox, textWidth, textWrap} from "d3plus-text";
 
 const colorMid = "#bbb";
 
@@ -31,7 +31,7 @@ export default class Timeline extends Axis {
 
     super();
 
-    this._barConfig = Object.assign({}, this._barConfig, {
+    this._barConfig = assign({}, this._barConfig, {
       stroke: () => this._buttonBehaviorCurrent === "buttons" ? "transparent" : colorMid,
       "stroke-width": () => this._buttonBehaviorCurrent === "buttons" ? 0 : 1
     });
@@ -56,6 +56,65 @@ export default class Timeline extends Axis {
     this._labelOffset = false;
     this._on = {};
     this.orient("bottom");
+    this._playButton = true;
+    this._playButtonClass = new TextBox()
+      .on("click", () => {
+
+        // if playing, pause
+        if (this._playTimer) {
+          clearInterval(this._playTimer);
+          this._playTimer = false;
+          this._playButtonClass.render();
+        }
+        // otherwise, start playing
+        else {
+          let firstTime = true;
+          const nextYear = () => {
+            let selection = this._selection || [this._domain[this._domain.length - 1]];
+            if (!(selection instanceof Array)) selection = [selection];
+            selection = selection.map(date).map(Number);
+            if (selection.length === 1) selection.push(selection[0]);
+            const ticks = this._ticks.map(Number);
+            const firstIndex = ticks.indexOf(selection[0]);
+            const lastIndex = ticks.indexOf(selection[selection.length - 1]);
+            if (lastIndex === ticks.length - 1) {
+              if (!firstTime) {
+                clearInterval(this._playTimer);
+                this._playTimer = false;
+                this._playButtonClass.render();
+              }
+              else {
+                this.selection([
+                  this._ticks[0], 
+                  this._ticks[lastIndex - firstIndex]
+                ]).render();
+              }
+            }
+            else {
+              if (lastIndex + 1 === ticks.length - 1) {
+                clearInterval(this._playTimer);
+                this._playTimer = false;
+              }
+              this.selection([
+                this._ticks[firstIndex + 1], 
+                this._ticks[lastIndex + 1]
+              ]).render();
+            }
+            firstTime = false;
+          }
+          this._playTimer = setInterval(nextYear, this._playButtonInterval);
+          nextYear();
+        }
+      })
+      .on("mousemove", () => this._playButtonClass.select().style("cursor", "pointer"));
+    this._playButtonConfig = {
+      fontColor: colorDefaults.dark,
+      fontSize: 15,
+      text: () => this._playTimer ? "⏸" : "⏵",
+      textAnchor: "middle",
+      verticalAlign: "middle"
+    };
+    this._playButtonInterval = 1000;
     this._selectionConfig = {
       "fill": "#228be6",
       "fill-opacity": () => this._buttonBehaviorCurrent === "buttons" ? 0.3 : 1,
@@ -101,8 +160,11 @@ export default class Timeline extends Axis {
 
     if (event.sourceEvent && event.sourceEvent.offsetX && event.selection !== null && (!this._brushing || this._snapping)) {
 
-      const domain = this._updateDomain(event);
+      clearInterval(this._playTimer);
+      this._playTimer = false;
+      this._playButtonClass.render();
 
+      const domain = this._updateDomain(event);
       this._brushGroup.call(this._brush.move, this._updateBrushLimit(domain));
 
     }
@@ -140,6 +202,10 @@ export default class Timeline extends Axis {
 
     if (event.sourceEvent !== null && (!this._brushing || this._snapping)) {
 
+      clearInterval(this._playTimer);
+      this._playTimer = false;
+      this._playButtonClass.render();
+
       const domain = this._updateDomain(event);
       this._brushGroup.call(this._brush.move, this._updateBrushLimit(domain));
 
@@ -176,7 +242,7 @@ export default class Timeline extends Axis {
       .attr("height", this._buttonBehaviorCurrent === "buttons" ? this._buttonHeight + 2 : timelineHeight + this._handleSize);
 
     this._brushGroup.selectAll(".overlay")
-      .attr("x", this._marginLeft)
+      .attr("x", this._paddingLeft)
       .attr("cursor", "pointer")
       .attr("transform", `translate(0,${this._buttonBehaviorCurrent === "buttons" ? this._buttonHeight / 2 : -this._handleSize})`)
       .attr("width", this._buttonBehaviorCurrent === "buttons" ? this._ticksWidth : this._width)
@@ -352,7 +418,10 @@ export default class Timeline extends Axis {
       this._ticksWidth = maxLabel * ticks.length;
     }
 
-    this._buttonBehaviorCurrent = this._buttonBehavior === "auto" ? this._ticksWidth < this._width ? "buttons" : "ticks" : this._buttonBehavior;
+    const playButtonWidth = this._playButton ? this._buttonHeight : 0;
+    const space = this._width - playButtonWidth;
+    
+    this._buttonBehaviorCurrent = this._buttonBehavior === "auto" ? this._ticksWidth < space ? "buttons" : "ticks" : this._buttonBehavior;
     const hiddenHandles = this._hiddenHandles = this._buttonBehaviorCurrent === "buttons" && !this._brushing;
 
     if (this._buttonBehaviorCurrent === "buttons") {
@@ -366,23 +435,22 @@ export default class Timeline extends Axis {
 
       const buttonMargin = 0.5 * this._ticksWidth / this._ticks.length;
 
-      this._marginLeft = this._buttonAlign === "middle"
-        ? (this._width - this._ticksWidth) / 2 : this._buttonAlign === "end"
-          ? this._width - this._ticksWidth : 0;
+      const emptySpace = this._width - this._ticksWidth - playButtonWidth;
 
-      const marginRight = this._buttonAlign === "middle"
-        ? (this._width + this._ticksWidth) / 2 : this._buttonAlign === "start"
-          ? this._ticksWidth : undefined;
+      this._paddingLeft = this._buttonAlign === "middle" ? emptySpace / 2 + playButtonWidth
+        : this._buttonAlign === "end" ? emptySpace + playButtonWidth
+          : playButtonWidth;
 
       this._range = [
-        this._buttonAlign === "start" ? undefined : this._marginLeft + buttonMargin,
-        this._buttonAlign === "end" ? undefined : marginRight - buttonMargin
+        this._paddingLeft + buttonMargin,
+        this._paddingLeft + this._ticksWidth - buttonMargin
       ];
     }
     else {
       this._scale = "time";
       this._domain = extent(ticks);
-      this._range = false;
+      this._range = [playButtonWidth ? playButtonWidth * 1.5 : undefined, undefined];
+      this._paddingLeft = playButtonWidth;
     }
 
     super.render(callback);
@@ -430,6 +498,21 @@ export default class Timeline extends Axis {
 
     this._outerBounds.y -= this._handleSize / 2;
     this._outerBounds.height += this._handleSize / 2;
+
+    const playButtonGroup = elem("g.d3plus-Timeline-play", {parent: this._group});
+  
+    this._playButtonClass
+      .data(this._playButton ? [{
+        x: this._paddingLeft - playButtonWidth, 
+        y: this._buttonBehaviorCurrent === "buttons" 
+          ? this._height / 2 - playButtonWidth / 2 
+          : this._margin.top + playButtonWidth, 
+        width: playButtonWidth,
+        height: playButtonWidth
+      }] : [])
+      .select(playButtonGroup.node())
+      .config(this._playButtonConfig)
+      .render();
 
     return this;
   }
@@ -515,7 +598,7 @@ function() {
       @chainable
   */
   handleConfig(_) {
-    return arguments.length ? (this._handleConfig = Object.assign(this._handleConfig, _), this) : this._handleConfig;
+    return arguments.length ? (this._handleConfig = assign(this._handleConfig, _), this) : this._handleConfig;
   }
 
   /**
@@ -536,7 +619,37 @@ function() {
       @chainable
   */
   on(_, f) {
-    return arguments.length === 2 ? (this._on[_] = f, this) : arguments.length ? typeof _ === "string" ? this._on[_] : (this._on = Object.assign({}, this._on, _), this) : this._on;
+    return arguments.length === 2 ? (this._on[_] = f, this) : arguments.length ? typeof _ === "string" ? this._on[_] : (this._on = assign({}, this._on, _), this) : this._on;
+  }
+
+  /**
+      @memberof Timeline
+      @desc Determines the visibility of the play button to the left the of timeline, which will cycle through the available periods at a rate defined by the playButtonInterval method.
+      @param {Boolean} [*value* = true]
+      @chainable
+  */
+  playButton(_) {
+    return arguments.length ? (this._playButton = _, this) : this._playButton;
+  }
+
+  /**
+      @memberof Timeline
+      @desc The config Object for the Rect class used to create the playButton.
+      @param {Object} [*value*]
+      @chainable
+  */
+  playButtonConfig(_) {
+    return arguments.length ? (this._playButtonConfig = assign(this._playButtonConfig, _), this) : this._playButtonConfig;
+  }
+
+  /**
+      @memberof Timeline
+      @desc The value, in milliseconds, to use when cycling through the available time periods when the user clicks the playButton.
+      @param {Number} [*value* = 1000]
+      @chainable
+  */
+  playButtonInterval(_) {
+    return arguments.length ? (this._playButtonInterval = _, this) : this._playButtonInterval;
   }
 
   /**
@@ -546,7 +659,7 @@ function() {
       @chainable
   */
   selectionConfig(_) {
-    return arguments.length ? (this._selectionConfig = Object.assign(this._selectionConfig, _), this) : this._selectionConfig;
+    return arguments.length ? (this._selectionConfig = assign(this._selectionConfig, _), this) : this._selectionConfig;
   }
 
   /**
