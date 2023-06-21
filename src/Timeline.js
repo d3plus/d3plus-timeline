@@ -8,6 +8,7 @@ import {scaleTime} from "d3-scale";
 import {pointers} from "d3-selection";
 
 import {Axis, date} from "d3plus-axis";
+import locale from "d3plus-axis/es/src/locale";
 import {colorDefaults} from "d3plus-color";
 import {assign, attrize, constant, closest, elem} from "d3plus-common";
 import {formatDate} from "d3plus-format";
@@ -48,7 +49,6 @@ export default class Timeline extends Axis {
     this._labelOffset = false;
     this._on = {};
     this.orient("bottom");
-    this._scale = "time";
     this._selectionConfig = {
       "fill": "#999",
       "stroke-width": 0
@@ -282,40 +282,47 @@ export default class Timeline extends Axis {
   render(callback) {
     const {height, y} = this._position;
 
-    let ticks = this._ticks ? this._ticks.map(date) : this._domain.map(date);
-    const d3Scale = scaleTime().domain(ticks).range([0, this._width]);
+    if (this._ticks) this._ticks = this._ticks.map(date);
+    if (this._data) this._data = this._data.map(date);
 
-    ticks = this._ticks ? ticks : d3Scale.ticks();
-
-    const tickFormat = this._tickFormat = this._tickFormat ? this._tickFormat : d => formatDate(d, ticks);
+    let ticks = this._ticks ? this._ticks : this._domain.map(date);
+    if (!this._ticks) {
+      const d3Scale = scaleTime().domain(ticks).range([0, this._width]);
+      ticks = d3Scale.ticks();
+    }
+    
+    const timeLocale = this._timeLocale || locale[this._locale] || locale["en-US"];
+    if (this._userFormat === undefined) this._userFormat = this._tickFormat || false;
+    const tickFormat = this._tickFormat = this._userFormat ? this._userFormat : d => formatDate(d, ticks).replace(/^Q/g, timeLocale.quarter);
 
     // Measures size of ticks
-    let maxLabel = 0;
-    ticks.forEach((d, i) => {
-
-      const f = this._shapeConfig.labelConfig.fontFamily(d, i),
-            s = this._shapeConfig.labelConfig.fontSize(d, i);
-
-      const wrap = textWrap()
-        .fontFamily(f)
-        .fontSize(s)
-        .lineHeight(this._shapeConfig.lineHeight ? this._shapeConfig.lineHeight(d, i) : undefined);
-
-      const res = wrap(tickFormat(d));
-      
-      let width = res.lines.length
-        ? Math.ceil(max(res.lines.map(line => textWidth(line, {"font-family": f, "font-size": s})))) + s / 4
-        : 0;
-
-      if (width % 2) width++;
-      if (maxLabel < width) maxLabel = width + 2 * this._buttonPadding;
-
-    });
-
-    this._ticksWidth = maxLabel * ticks.length;
+    this._ticksWidth = this._width;
+    if (["auto", "buttons"].includes(this._buttonBehavior)) {
+      let maxLabel = 0;
+      ticks.forEach((d, i) => {
+  
+        const f = this._shapeConfig.labelConfig.fontFamily(d, i),
+              s = this._shapeConfig.labelConfig.fontSize(d, i);
+  
+        const wrap = textWrap()
+          .fontFamily(f)
+          .fontSize(s)
+          .lineHeight(this._shapeConfig.lineHeight ? this._shapeConfig.lineHeight(d, i) : undefined);
+  
+        const res = wrap(tickFormat(d));
+        
+        let width = res.lines.length
+          ? Math.ceil(max(res.lines.map(line => textWidth(line, {"font-family": f, "font-size": s})))) + s / 4
+          : 0;
+  
+        if (width % 2) width++;
+        if (maxLabel < width) maxLabel = width + 2 * this._buttonPadding;
+  
+      });
+      this._ticksWidth = maxLabel * ticks.length;
+    }
 
     this._buttonBehaviorCurrent = this._buttonBehavior === "auto" ? this._ticksWidth < this._width ? "buttons" : "ticks" : this._buttonBehavior;
-    if (this._ticks) this._ticks = this._ticks.map(date);
 
     if (this._buttonBehaviorCurrent === "buttons") {
 
@@ -344,7 +351,9 @@ export default class Timeline extends Axis {
       ];
     }
     else {
-      this._labels = extent(ticks);
+      this._scale = "time";
+      this._domain = extent(ticks);
+      this._range = false;
     }
 
     super.render(callback);
