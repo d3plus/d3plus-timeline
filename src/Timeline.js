@@ -504,8 +504,10 @@ export default class Timeline extends Axis {
       .data(this._playButton ? [{
         x: this._paddingLeft - playButtonWidth, 
         y: this._buttonBehaviorCurrent === "buttons" 
-          ? this._height / 2 - playButtonWidth / 2 
-          : this._margin.top + playButtonWidth, 
+            ? this._align === "middle" ? this._height / 2 - this._buttonHeight / 2  
+            : this._align === "start" ? this._margin.top
+            : this._height - this._buttonHeight - this._margin.bottom 
+          : this._outerBounds.y, 
         width: playButtonWidth,
         height: playButtonWidth
       }] : [])
