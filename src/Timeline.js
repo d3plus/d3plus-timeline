@@ -444,6 +444,10 @@ export default class Timeline extends Axis {
         this._paddingLeft + buttonMargin,
         this._paddingLeft + this._ticksWidth - buttonMargin
       ];
+    } 
+
+    if (this._buttonBehaviorCurrent === "ticks" && this._ticks) {
+      this._domain = [this._ticks[0], this._ticks[this._ticks.length - 1]];
     }
     else {
       this._scale = "time";
