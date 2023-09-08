@@ -109,7 +109,7 @@ export default class Timeline extends Axis {
     this._playButtonConfig = {
       fontColor: colorDefaults.dark,
       fontSize: 15,
-      text: () => this._playTimer ? "⏸" : "⏵",
+      text: () => this._playTimer ? "◼" : "▶",
       textAnchor: "middle",
       verticalAlign: "middle"
     };
@@ -512,7 +512,7 @@ export default class Timeline extends Axis {
         height: playButtonWidth
       }] : [])
       .select(playButtonGroup.node())
-      .config(this._playButtonConfig)
+      .config(assign(this._playButtonConfig, {text: this._playButtonConfig.text.bind(this)}))
       .render();
 
     return this;
