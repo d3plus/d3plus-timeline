@@ -109,7 +109,7 @@ export default class Timeline extends Axis {
     this._playButtonConfig = {
       fontColor: colorDefaults.dark,
       fontSize: 15,
-      text: () => this._playTimer ? "◼" : "▶",
+      text: () => this._playTimer ? "⏸" : "⏵",
       textAnchor: "middle",
       verticalAlign: "middle"
     };
